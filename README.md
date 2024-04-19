@@ -52,7 +52,7 @@ mode that help to manage the table, but you might also find that the facilities
 are just a little bit limited.   For example, you might want to know the totals
 of each column, but you really didn't want to load the data into a spreadsheet
 or a statistics system like R; you just want the simple totals.   That's what
-tabulate is for.  If you set it up in Vim (see below) as a user command, then
+Tablinum for.  If you set it up in Vim (see below) as a user command, then
 you can just say `:Table add` to get this:
 
     event  eruption  waiting
@@ -76,22 +76,23 @@ can use it right in the middle of your favourite editor.
 
 Many of my Python scripts create tables of data that I need to share in plain
 text (on Slack for example), and I often found myself loading the output into
-Vim just so I could tidy it up with `tabulate`.  So I have re-written the original
-Perl version of tabulate as a Python module that can be imported, and used to
+Vim just so I could tidy it up with Tablinum.  So I have re-written my original
+Perl `tabulate` script as a Python package that can be imported, and used to
 tidy up a list of lists of data for printing directly as part of a script.
 
 ## Usage modes
 
-You can use tabulate from the command line, from your editor, or as a Python module.
+You can use Tablinum from the command line, from your editor, or as a Python module.
 In each case, you use the same mini-language of verbs to act on your table.  These
 are described in the next main section.
 
 ### Usage from the command line
 
-You can run `tabulate.py` from the command line.  It will process lines from STDIN
-or from an optional file path.
+The package provides a command line filter "entry point" called `tabble`.  This 
+lets you get use Tablinum from the command line.  After successful installtion
+you should be able to do `tabble --h` to get this:
 
-    usage: tabulate.py [-h] [--file FILE] [agenda [agenda ...]]
+    usage: tabble [-h] [--file FILE] [agenda [agenda ...]]
 
     positional arguments:
       agenda       [delimiter.maxsplit] [verb [option]]...
@@ -100,27 +101,31 @@ or from an optional file path.
       -h, --help   show this help message and exit
       --file FILE  Source file name, defaults to STDIN
 
+The script can be used with the DSL `gen` to generate data or to read from STDIN
+or from an optional file path.
+
 ### Usage from within Vim
 
-To use tabulate as a filter, you need first to add a line to your `.vimrc` file like this:
+Assuming you have installed successfully and you can run `tabble` from the console
+then you can use the same filter from within Vim, by adding a line to your `.vimrc` 
+file like this:
 
-    :command! -nargs=* -range=% Table <line1>,<line2>!python3 ~/python-tabulate/tabulate.py <q-args>
+    :command! -nargs=* -range=% Table <line1>,<line2>!tabble <q-args>
 
-which you should adjust appropriately so your python3 can find where you put
-tabulate.  You can of course use some word other than `Table` as the command
-name. Perhaps `Tbl` ?  Take your pick, you can choose anything, except that Vim
-insists on the name starting with an uppercase letter.
+You can of course use some word other than `Table` as the command name. Perhaps
+`Tbl` ?  Take your pick, you can choose anything, except that Vim insists on
+the name starting with an uppercase letter.
 
 With a definition like this, when you type `:Table` in normal mode in Vim, it
-will call tabulate on the current area and replace it with the output.  If you
+will call `tabble` on the current area and replace it with the output.  If you
 are in Visual Line mode then the current area will just be the marked lines.
 If you are in Normal mode then the current area will be the whole file.
 
     :Table [delimiter.maxsplit] [verb [option]]...
 
-### Writing the command line
+### Writing the agenda line
 
-Whether you are calling tabulate from Vim or the command line, the parsing of your
+Whether you are calling `tabble` from Vim or the command line, the parsing of your
 input is the same.
 
 Use blanks to separate the arguments you type: the delimiter argument and any
@@ -163,14 +168,14 @@ message will be written back in the file.  You will probably want to use the
 
 ### Usage as a Python library
 
-Tablinum can also be used from your own Python scripts.  If you have
-data as a list of lists, or a  list of strings, then you can use `tabulate` to format
+Tablinum can also be used from your own Python scripts.  If you have data as a
+list of lists, or a  list of strings, then you can use the package to format
 them neatly.  Something like this
 
 ```python
-import tabulate
+import tablinum
 data = [('Item', 'Amount'), ('First label', 23), ('Second thing', 45), ('Third one', 55)]
-tt = tabulate.Table()
+tt = tablinum.Table()
 tt.parse_lol(data)
 tt.do("rule add")
 print(tt)
@@ -198,9 +203,9 @@ and a maximum number of splits to make, where 0 means "as many as there are".
 You could also add lines one at a time using the Table.append() method.  So the example
 above could be done as
 ```python
-import tabulate
+import tablinum
 data = [('Item', 'Amount'), ('First label', 23), ('Second thing', 45), ('Third one', 55)]
-tt = tabulate.Table()
+tt = tablinum.Table()
 for row in data:
     tt.append(row)
 tt.do("rule add")
@@ -1431,7 +1436,7 @@ The `Table` class defined by `tabulate` provides the following instance methods.
 To use them you need to instantiate a table, then call the methods on that
 instance.
 ```python
-    t = tabulate.Table()
+    t = tablinum.Table()
     t.parse_lol(data_rows)
     t.do("add")
     print(t)
@@ -1441,35 +1446,37 @@ it implements most of the normal Python list interface, except that you
 can't assign to it directly.  Instead you should use one of the two
 data parsing methods to insert data, or `append`, or `insert`.
 
-### `parse_lol(list_of_iterables, append=False, filler='')`
+### Parsing methods
 
-Parse a list of iterables into your table instance.  By default this will
-replace any existing values in the instance but if you add `append=True` the
-new values will be appended (or rather the old values will not be cleared first).
+- `parse_lol(list_of_iterables, append=False, filler='')`
 
-Note that you can use lists or tuples or strings as the "rows" in the list of iterables.
-The "rows" can vary in length, and short ones will be expanded using the optional
-filler string, so that they are all the same length. The default filler is an empty string
-so quite often you will not notice this expansion.
+    Parse a list of iterables into your table instance.  By default this will
+    replace any existing values in the instance but if you add `append=True` the
+    new values will be appended (or rather the old values will not be cleared first).
 
-After this expansion each row in the list of iterables is passed to the `append` method.
+    Note that you can use lists or tuples or strings as the "rows" in the list of iterables.
+    The "rows" can vary in length, and short ones will be expanded using the optional
+    filler string, so that they are all the same length. The default filler is an empty string
+    so quite often you will not notice this expansion.
 
-### `parse_lines(lines_thing, splitter=re.compile(r'\s\s+'), splits=0, append=False)`
+    After this expansion each row in the list of iterables is passed to the `append` method.
 
-Parse a list of plain text lines into your table instance.  Each line will be split up
-using the compiled regular expression passed as the `splitter` argument.  The default pattern is
-two or more blanks.  The `splits` argument controls how many splits you want.  The append
-argument behaves the same as for `parse_lol`.  If it is false (default) then any data
-in the table instance will be cleared first.
+- `parse_lines(lines_thing, splitter=re.compile(r'\s\s+'), splits=0, append=False)`
 
-This method will recognise rules (any line consisting of only "---" chars), blanks,
-and comments (lines with leading '#').
+    Parse a list of plain text lines into your table instance.  Each line will be split up
+    using the compiled regular expression passed as the `splitter` argument.  The default pattern is
+    two or more blanks.  The `splits` argument controls how many splits you want.  The append
+    argument behaves the same as for `parse_lol`.  If it is false (default) then any data
+    in the table instance will be cleared first.
+
+    This method will recognise rules (any line consisting of only "---" chars), blanks,
+    and comments (lines with leading '#').
 
 ### List like methods
 
 You can use some of the regular list syntax with a Table instance.  So after
 
-    t = tabulate.Table()
+    t = tablinum.Table()
     t.parse_lol(list_of_iterables)
 
 you can get the number of rows with `len(t)`, and you can get the first row with `t[0]`
@@ -1479,88 +1486,90 @@ will raise the normal list exceptions.  A row will be returned as a list of stri
 return slices, so `t[::2]` gives you every other row, while `t[:]` gives you a raw copy
 of all the data.
 
-#### `append(row, filler='')`
+- `append(row, filler='')`
 
-Add a new row to the bottom of the table.  The row should be an iterable as above.
+    Add a new row to the bottom of the table.  The row should be an iterable as above.
 
-#### `insert(i, row, filler='')`
+- `insert(i, row, filler='')`
 
-Insert a new row after line `i`.   Note that both `append` and `insert` maintain
-the other properties of the table instance.
+    Insert a new row after line `i`.   Note that both `append` and `insert` maintain
+    the other properties of the table instance.
 
-#### `pop(n=None)`
+- `pop(n=None)`
 
-Remove row `n` (or the last one if `n` is `None`).  The row will be returned as a
-list of strings.
+    Remove row `n` (or the last one if `n` is `None`).  The row will be returned as a
+    list of strings.
 
-#### `clear()`
+- `clear()`
 
-Remove all the rows of data from your table instance.
+    Remove all the rows of data from your table instance.
 
-### `column(i)`
+### Manipulation and printing
 
-Get a column from the table.  The data is returned as a list of 2-tuples.
-Each tuple is either:
+- `column(i)`
 
-- True, followed by a numeric value as a Decimal object
-- False, followed by a string that does not look like a number
+    Get a column from the table.  The data is returned as a list of 2-tuples.
+    Each tuple is either:
 
-So (for example) you could get the total of the numbers in column 2 of your
-table like this
+    - True, followed by a numeric value as a Decimal object
+    - False, followed by a string that does not look like a number
 
-    sum(x[1] for x in t.column(2) if x[0])
+    So (for example) you could get the total of the numbers in column 2 of your
+    table like this
 
-### `transpose()`
+        sum(x[1] for x in t.column(2) if x[0])
 
-Swap rows and columns. This is the equivalent of the `xp` DSL verb.
-So if `t` is a tabulate Table object then this:
+- `transpose()`
 
-    t.transpose()
+    Swap rows and columns. This is the equivalent of the `xp` DSL verb.
+    So if `t` is a Table object then this:
 
-has the same effect as this:
+        t.transpose()
 
-    t.do('xp')
+    has the same effect as this:
 
-You could use this to add a new column:
+        t.do('xp')
 
-    t.transpose()
-    t.append(iterable)
-    t.transpose()
+    You could use this to add a new column:
 
-### `do(agenda)`
+        t.transpose()
+        t.append(iterable)
+        t.transpose()
 
-Apply a sequence of DSL verbs and options to the contents of the table.
-The verbs are described above.  Separate each verb and option by one or more blanks.
+- `do(agenda)`
 
-### `add_blank(n=None)`
+    Apply a sequence of DSL verbs and options to the contents of the table.
+    The verbs are described above.  Separate each verb and option by one or more blanks.
 
-Add a special blank line after row `n`, or at the end if `n` is None
+- `add_blank(n=None)`
 
-### `add_rule(n=None)`
+    Add a special blank line after row `n`, or at the end if `n` is None
 
-Add a special rule line after row `n` or at the end if `n` is None
+- `add_rule(n=None)`
 
-### `add_comment(contents)`
+    Add a special rule line after row `n` or at the end if `n` is None
 
-Add a special comment line after row `n` or at the end if `n` is None
+- `add_comment(contents)`
 
-### `tabulate()`
+    Add a special comment line after row `n` or at the end if `n` is None
 
-Return a generator object, that will yield a tabulated string for each row in the table.
-You can print your table neatly like this:
-```python
-    for r in t.tabulate():
-        print(r)
-```
-This allows you to print rows selectively or perhaps highlight some of them in some
-way.  If you just want to print the whole thing, you could do
+- `tabulate()`
 
-    print("\n".join(t.tabulate()))
+    Return a generator object, that will yield a tabulated string for each row in the table.
+    You can print your table neatly like this:
+    ```python
+        for r in t.tabulate():
+            print(r)
+    ```
+    This allows you to print rows selectively or perhaps highlight some of them in some
+    way.  If you just want to print the whole thing, you could do
 
-except that you don't need to do that because the Table objects implement the magic printing
-interface, so that all you have to do is
+        print("\n".join(t.tabulate()))
 
-    print(t)
+    except that you don't need to do that because the Table objects implement the magic printing
+    interface, so that all you have to do is
 
-and `t.tabulate()` will be called automatically.  The `tabulate` method will use the current settings
-for separators, so if you have done `t.do('make csv')` you will get lines of values with commas.
+        print(t)
+
+    and `t.tabulate()` will be called automatically.  The `tabulate` method will use the current settings
+    for separators, so if you have done `t.do('make csv')` you will get lines of values with commas.
