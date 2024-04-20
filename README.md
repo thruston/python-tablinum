@@ -1,6 +1,6 @@
 # Tablinum
 
-Python library to make, manipulate, and neatly print tabular output to the console.
+Tablinum is a Python library to make, manipulate, and neatly print tabular output to the console.
 
 [![PyPI - Version](https://img.shields.io/pypi/v/tablinum.svg)](https://pypi.org/project/tablinum)
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/tablinum.svg)](https://pypi.org/project/tablinum)
@@ -10,6 +10,12 @@ Python library to make, manipulate, and neatly print tabular output to the conso
 **Table of Contents**
 
 - [Installation](#installation)
+- [Introduction](#introduction)
+- [Usage modes](#usage-modes)
+- [Special rows](#special-rows)
+- [Verbs in the DSL](#verbs-in-the-dsl)
+- [What counts as a number?](#what-counts-as-a-number?)
+- [Methods available for a Table object](#methods-available-for-a-table-object)
 - [License](#license)
 
 ## Installation
@@ -21,10 +27,6 @@ used for testing.  Everything else is self-contained, and uses only standard lib
 ```console
 pip install tablinum
 ```
-
-## License
-
-`tablinum` is distributed under the terms of the [MIT](https://spdx.org/licenses/MIT.html) license.
 
 
 ## Introduction
@@ -183,7 +185,7 @@ print(tt)
 
 which should produce
 
-```
+```console
 Item          Amount
 First label       23
 Second thing      45
@@ -240,10 +242,12 @@ all the defined verbs.  Like this:
     levels make noblanks nospace pivot pop push roll rule sf shuffle sort
     tap uniq unwrap unzip wrap xp zip
 
+DSL = [Domain Specific Language](https://en.wikipedia.org/wiki/Domain-specific_language)
+
 The following thematic tables summarize the ones you are likely to use most.
 Then they are all described in more detail below, in alphabetical order.
 
-Rearrange the columns
+**Re-arrange the columns**
 
 - [xp](#xp---transpose-the-table) - transpose the table
 - [arr](#arr---rearrange-the-columns) - rearrange the columns and/or calculate new columns
@@ -252,7 +256,7 @@ Rearrange the columns
 - [zip](#zip-and-unzip---reshape-a-table-by-rows) and unzip - reshape a table by rows
 - [roll](#roll---roll-the-values-in-one-or-more-columns) - roll the values in one or more columns
 
-Rearrange or filter the rows
+**Re-arrange or filter the rows**
 
 - [sort](#sort---sort-on-column) - sort on column
 - [group](#group---insert-special-blank-rows-between-different-values-in-given-column) - insert special blank rows between different values in given col
@@ -265,7 +269,7 @@ Rearrange or filter the rows
 - [push](#push---restore-a-row) - put back the last row popped
 - [clear](#clear---clear-all-rows) - remove all the rows
 
-Decorate / adjust the whole table
+**Decorate or adjust the whole table**
 
 - [add](#add---insert-the-sum-at-the-bottom-of-each-column) - insert the sum at the bottom of each column
 - [dp](#dp---round-numbers-to-n-decimal-places) - round numbers to n decimal places
@@ -350,7 +354,7 @@ four column table then:
 - `arr abc` keeps only the first three columns
 
 and so on.  Astute readers may spot a problem here.  The sequence `arr add`
-meaning `delete cols b and c and duplicate col d` won't work because `add` is a
+meaning _delete cols b and c and duplicate col d_ won't work because `add` is a
 valid verb.  In this case (as similar ones) just put a pair of empty braces on
 the end, like so `arr add{}`.
 
@@ -405,30 +409,40 @@ expression in curly braces or parentheses:
 - `arr ~{sqrt(a)}` keeps all existing cols and adds a new col with the square root of the value in col 1.
 
 and so on.  Each single letter `a`, `b`, etc is changed into the corresponding
-cell value and then the resulting expression is evaluated. You can use a subset of the
-normal built-in or `math` functions such as `log` and `sqrt`, as shown above.
+cell value and then the resulting expression is evaluated.  An expression can also be 
+a constant.  So `arr ~(1)` will add a column of 1s to the table. 
 
-The access to Python3 is not entirely general, as it is only intended for
-simple manipulation of a few values, and therefore tabulate tries quite hard to
-prevent you accidentally loading the `sys` module and deleting your disk. Only
-the following names of functions are allowed in a calculation.
+As shown above, you can use a subset of the normal built-in or `math` functions
+such as `log` and `sqrt`, but the access to Python is not entirely general, as
+it is only intended for simple manipulation of a few values, and therefore the
+library tries quite hard to prevent you accidentally loading the `sys` module
+and deleting the contents of your file system. 
 
-- maths functions: abs cos cosd divmod exp floor hypot log log10 pow round sin sind sqrt tan tand
-- number conversion: bool chr hex int oct ord str
-- maths constants: pi tau
-- string functions: caps lower upper reversed len - see below
-- date functions: base date dow epoch - see below
-- list functions: all any max min sorted sum
+Only the following names of functions are allowed in a calculation.
+
+- maths functions: `abs cos cosd divmod exp floor hypot log log10 pow round sin sind sqrt tan tand`
+- number conversion: `bool chr hex int oct ord str`
+- maths constants: `pi tau`
+- string functions: `caps lower upper reversed len` - see below
+- date functions: `base date dow epoch hms hr mins secs` - see below
+- list functions: `all any max min sorted sum`
 
 The list functions are enhanced so you can call them with a tuple or a list of
 arguments.  If a function returns more than one value (like `divmod`) the
 values will be inserted in separate columns. The others are the regular BIF or
 `math` functions except for the trig functions for angles in degrees.
 
-You can also use "?" in a formula to get a random number.  If you want the
-current row number or the total number of rows use the pre-defined variables
-`row_number` and `rows` in your formula. So with the simple table from above,
-`arr ~(f'{row_number}/{rows}')` should produce this:
+The expression should be a valid Python expression, but there are a couple of
+useful additions:  borrowing from Metapost, you can write `2a` instead of
+`2*a`, and `3++4` instead of `hypot(3,4)`.  You can also write `a mod b`
+instead of `a%b`, and `a<>b` instead of `a!=b`; these two make it easier to use
+the filter with Vim or any other editor that gives `%` and `!` a special
+meaning on the command line. You can also use "?" in a formula to get a uniform
+random number between 0 and 1. 
+
+If you want the current row number or the total number of rows use the
+pre-defined variables `row_number` and `rows` in your formula. So with the
+simple table from above, `arr ~(f'{row_number}/{rows}')` should produce this:
 
     First   1  1  1/3
     Second  2  3  2/3
@@ -544,15 +558,15 @@ or British) forms as well as `yyyy-mm-dd`, as follows:
     15-dec-2020               %d-%b-%Y
 
 This table shows the strftime formats used.  This is not as clever as using
-`dateutil.parser` but it does mean that tabulate only uses the standard Python3
+`dateutil.parser` but it does mean that the package only uses the standard Python3
 libraries.  If you want to convert from any of these formats to standard ISO format
 then do `date(base(a))`.
 
-There are also useful functions to convert HH:MM:SS to fractional hours,
+There are also a few useful functions to convert HH:MM:SS to fractional hours,
 minutes or seconds.  `hms()` takes fractional hours and produces `hh:mm:ss`,
 while `hr`, `mins`, and `secs` go the other way.
 
-Plus "epoch()" that will convert a full date-time timestamp to epoch seconds.
+Plus `epoch()` that will convert a full date-time timestamp to epoch seconds.
 
 
 ### clear - remove all rows
@@ -752,7 +766,11 @@ Or how about a list of the dates of the next five Mondays?
     4  2024-05-13
     5  2024-05-20
 
-For the above, try `gen 1:5 arr a(date(base('Monday')+7*a))`
+For the above, try `gen 5 arr a(date(base('Monday')+7a))`
+
+Or perhaps your next Lottery numbers?  Try `gen 6 arr (int(?*48+1)) sort wrap 6`
+
+    3  11  19  21  30  46
 
 
 ### group - insert special blank rows between different values in given column
@@ -897,7 +915,7 @@ With this input, `pivot wide` gives you this
     West    2200  2500  1990  2600
 
 Notice that parts of the headings may get lost in transposition.
-Notice also that you *need* a heading so some sort, otherwise `pivot wide` will
+Notice also that you *need* a heading of some sort, otherwise `pivot wide` will
 mangle the first row of your data.  So you might like to use `label` before `pivot`.
 
 The `pivot wide` function assumes that the right hand column contains numeric values
@@ -1573,3 +1591,7 @@ of all the data.
 
     and `t.tabulate()` will be called automatically.  The `tabulate` method will use the current settings
     for separators, so if you have done `t.do('make csv')` you will get lines of values with commas.
+
+## License
+
+`tablinum` is distributed under the terms of the [MIT](https://spdx.org/licenses/MIT.html) license.
