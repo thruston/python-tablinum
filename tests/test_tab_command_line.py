@@ -8,7 +8,7 @@ class TestTableScript(unittest.TestCase):
 
     def test_me(self):
         '''Run the filter script'''
-        cmd = 'tabble gen 16 wrap 4'.split()
+        cmd = 'tablinum_filter gen 16 wrap 4'.split()
         cp = subprocess.run(cmd, stdout=subprocess.PIPE)
         self.assertEqual(cp.returncode, 0)
         self.assertEqual(cp.stdout.decode('utf-8'), '''
@@ -18,7 +18,7 @@ class TestTableScript(unittest.TestCase):
 4  8  12  16
 '''.lstrip())
 
-        cmd = 'tabble --file tests/test-input.txt 1 dp 003 rule 1 rule add'.split()
+        cmd = 'tablinum_filter --file tests/test-input.txt 1 dp 003 rule 1 rule add'.split()
         cp = subprocess.run(cmd, stdout=subprocess.PIPE)
         self.assertEqual(cp.returncode, 0)
         self.assertEqual(cp.stdout.decode('utf-8'), '''
