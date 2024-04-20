@@ -90,11 +90,11 @@ are described in the next main section.
 
 ### Usage from the command line
 
-The package provides a command line filter "entry point" called `tabble`.  This 
-lets you get use Tablinum from the command line.  After successful installtion
-you should be able to do `tabble --h` to get this:
+The package provides a command line filter "entry point" called `tablinum_filter`. 
+This  lets you get use Tablinum from the command line.  After successful installtion
+you should be able to do `tablinum_filter --h` to get this:
 
-    usage: tabble [-h] [--file FILE] [agenda [agenda ...]]
+    usage: tablinum_filter [-h] [--file FILE] [agenda [agenda ...]]
 
     positional arguments:
       agenda       [delimiter.maxsplit] [verb [option]]...
@@ -104,31 +104,32 @@ you should be able to do `tabble --h` to get this:
       --file FILE  Source file name, defaults to STDIN
 
 The script can be used with the DSL `gen` to generate data or to read from STDIN
-or from an optional file path.
+or from an optional file path.  If you don't like typing such a long name, then
+you could do something like `alias tbl=tablinum_filter`.
 
 ### Usage from within Vim
 
-Assuming you have installed successfully and you can run `tabble` from the console
+Assuming you have installed successfully and you can run `tablinum_filter` from the console
 then you can use the same filter from within Vim, by adding a line to your `.vimrc` 
 file like this:
 
-    :command! -nargs=* -range=% Table <line1>,<line2>!tabble <q-args>
+    :command! -nargs=* -range=% Table <line1>,<line2>!tablinum_filter <q-args>
 
 You can of course use some word other than `Table` as the command name. Perhaps
 `Tbl` ?  Take your pick, you can choose anything, except that Vim insists on
-the name starting with an uppercase letter.
+the name starting with an uppercase letter.  
 
 With a definition like this, when you type `:Table` in normal mode in Vim, it
-will call `tabble` on the current area and replace it with the output.  If you
-are in Visual Line mode then the current area will just be the marked lines.
-If you are in Normal mode then the current area will be the whole file.
+will pass the current buffer to the script and replace the contents with the output.  
+If you are in Visual Line mode then the current buffer will just be the marked lines.
+If you are in Normal mode then the current buffer will be the whole file.
 
     :Table [delimiter.maxsplit] [verb [option]]...
 
 ### Writing the agenda line
 
-Whether you are calling `tabble` from Vim or the command line, the parsing of your
-input is the same.
+Whether you are calling Tablinum from Vim or the command line, the
+parsing of your input is the same.
 
 Use blanks to separate the arguments you type: the delimiter argument and any
 verbs must be single blank-separated words.  Any word that looks like a verb
@@ -1594,4 +1595,4 @@ of all the data.
 
 ## License
 
-`tablinum` is distributed under the terms of the [MIT](https://spdx.org/licenses/MIT.html) license.
+Tablinum is distributed under the terms of the [MIT](https://spdx.org/licenses/MIT.html) license.

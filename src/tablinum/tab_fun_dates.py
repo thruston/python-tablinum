@@ -42,7 +42,7 @@ def parse_date(sss, today=None):
     try:
         if 0 < int(sss) < 900000:
             return datetime.date.fromordinal(sss)
-    except (TypeError, ValueError) as e:
+    except (TypeError, ValueError) as _:
         pass
 
     days = "Monday Tuesday Wednesday Thursday Friday Saturday Sunday".split()

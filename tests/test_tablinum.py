@@ -5,7 +5,7 @@ import tablinum
 
 
 def load_tests(loader, tests, ignore):
-    tests.addTests(doctest.DocTestSuite(tabulate))
+    tests.addTests(doctest.DocTestSuite(tablinum))
     return tests
 
 

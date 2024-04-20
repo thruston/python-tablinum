@@ -32,7 +32,7 @@ Issues = "https://github.com/unknown/tablinum/issues"
 Source = "https://github.com/unknown/tablinum"
 
 [project.scripts]
-tabble = "tablinum.tablinum:filter"
+tablinum_filter = "tablinum.tablinum:filter"
 
 [tool.hatch.version]
 path = "src/tablinum/__about__.py"
