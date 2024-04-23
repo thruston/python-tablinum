@@ -1,66 +1,77 @@
 #! /usr/bin/env python3
 '''Date functions to use in tabulate `arr` expressions
 
-Toby Thurston -- 10 Feb 2021
+date()        takes int, returns string 
+parse_date()  takes int or string, returns datetime.date
+base()        takes string, returns int
 
-    "dow": tab_fun_dates.dow,
-    "base": tab_fun_dates.base,
-    "date": tab_fun_dates.date,
+Toby Thurston -- 21 Apr 2024
 
-    "hms": tab_fun_dates.hms,
-    "hr": tab_fun_dates.hr,
-    "mins": tab_fun_dates.mins,
-    "secs": tab_fun_dates.secs,
 
 '''
 import datetime
+import re
 
 
 def parse_date(sss, today=None):
     '''Try to parse a date
-    >>> parse_date(730486).isoformat()
-    '2001-01-01'
-    >>> parse_date("1 January 2001").isoformat()
-    '2001-01-01'
-    >>> parse_date(base("1 January 2001")).isoformat()
-    '2001-01-01'
-    >>> parse_date("6/7/95").isoformat()
-    '1995-07-06'
-    >>> parse_date("2022-W47-2").isoformat()
-    '2022-11-22'
-    >>> parse_date("Fri 1st Apr 2022").isoformat()
-    '2022-04-01'
-    >>> parse_date("Sat 29th July 2023").isoformat()
-    '2023-07-29'
-    >>> parse_date("Fri 29th Sept 2023").isoformat()
-    '2023-09-29'
-    >>> parse_date("Sat 19th Mar 2022").isoformat()
-    '2022-03-19'
-    >>> parse_date("Sunday", today='2022-03-17').isoformat()
-    '2022-03-20'
+    >>> parse_date(730486)
+    datetime.date(2001, 1, 1)
+
+    >>> parse_date(20010101)
+    datetime.date(2001, 1, 1)
+
+    >>> parse_date("730486")
+    datetime.date(2001, 1, 1)
+    
+    >>> parse_date("1 January 2001")
+    datetime.date(2001, 1, 1)
+    
+    >>> parse_date("6/7/95")
+    datetime.date(1995, 7, 6)
+
+    >>> parse_date("2022-W47-2")
+    datetime.date(2022, 11, 22)
+    >>> parse_date("Fri 1st Apr 2022")
+    datetime.date(2022, 4, 1)
+
+    >>> parse_date("Sat 29th July 2023")
+    datetime.date(2023, 7, 29)
+
+    >>> parse_date("Fri 29th Sept 2023")
+    datetime.date(2023, 9, 29)
+
+    >>> parse_date("Sat 19th Mar 2022")
+    datetime.date(2022, 3, 19)
+
+    >>> parse_date("Sunday", today='2022-03-17')
+    datetime.date(2022, 3, 20)
+
     '''
-    try:
-        if 0 < int(sss) < 900000:
+
+    maxo = datetime.date.max.toordinal()
+    mino = datetime.date.min.toordinal()
+
+    if isinstance(sss, int):
+        if mino <= sss < maxo:
             return datetime.date.fromordinal(sss)
-    except (TypeError, ValueError) as _:
-        pass
+   
+    sss = str(sss)
+
+    if sss.isdigit() and int(sss) < maxo:
+        return datetime.date.fromordinal(int(sss))
 
     days = "Monday Tuesday Wednesday Thursday Friday Saturday Sunday".split()
-    try:
-        iso_dow = 1 + days.index(str(sss).capitalize())
-    except ValueError:
-        pass
-    else:
-        if 1 <= iso_dow <= 7:
-            if today is None:
-                today = datetime.datetime.today()
-            else:
-                today = datetime.datetime.strptime(today, '%Y-%m-%d')
-            year, week = today.strftime("%G-%V").split("-")
-            return datetime.datetime.strptime(f'{year}-W{week}-{iso_dow}', "%G-W%V-%u").date()
+    if sss.capitalize() in days:
+        iso_dow = 1 + days.index(sss.capitalize())
+        if today is None:
+            today = datetime.datetime.today()
+        else:
+            today = datetime.datetime.strptime(today, '%Y-%m-%d')
+        year, week = today.strftime("%G-%V").split("-")
+        return datetime.datetime.strptime(f'{year}-W{week}-{iso_dow}', "%G-W%V-%u").date()
 
-    sss = str(sss).replace('Sept ', 'Sep ')
-
+    sss = sss.replace('Sept ', 'Sep ')
     for fmt in ('%Y-%m-%d', '%Y%m%d', '%d %B %Y', '%d %b %Y', '%G-W%V-%u', '%d-%b-%Y',
                 '%d %b %y', '%d %B %y', '%d/%m/%Y', '%d/%m/%y', '%B %d, %Y',
                 '%A %d %B %Y',
@@ -71,7 +82,7 @@ def parse_date(sss, today=None):
         try:
             return datetime.datetime.strptime(str(sss), fmt).date()
         except ValueError:
-            pass
+            continue
 
     raise ValueError
 
@@ -86,8 +97,6 @@ def dow(sss, date_format="%a"):
     'Fri'
     >>> dow("1 January 2001", "%A")
     'Monday'
-    >>> dow("date")
-    '%a'
 
     You can actually use this to produce any strftime format...
 
@@ -98,14 +107,13 @@ def dow(sss, date_format="%a"):
     '2'
 
     '''
-    try:
-        return parse_date(sss).strftime(date_format)
-    except (TypeError, ValueError):
-        return date_format
+    return parse_date(sss).strftime(date_format)
 
 
 def base(sss=None):
     '''Get today's date as "base" number, or whatever date you give
+    
+
     >>> base("1 January 2001")
     730486
     >>> base("1 January 1901")
@@ -114,62 +122,45 @@ def base(sss=None):
     730486
     >>> base("20010102")
     730487
-    >>> base(20010102)
-    730487
     >>> base("2001-01-03")
     730488
     >>> base("03-jan-2001")
     730488
     >>> base("31 Dec 2000")-base("1 Jan 1901")
     36524
-    >>> base() - datetime.date.today().toordinal()
-    0
-    >>> datetime.date.today().toordinal() - base(-4)
-    4
-    >>> base('Date')
-    'base(Date)'
+    >>> base() == datetime.date.today().toordinal()
+    True
     '''
     if sss is None:
         return datetime.date.today().toordinal()
 
-    if isinstance(sss, int) and abs(sss) < 1000:
-        return datetime.date.today().toordinal() + sss
-
-    try:
-        return parse_date(sss).toordinal()
-    except (TypeError, ValueError):
-        return f'base({sss})'
+    return parse_date(sss).toordinal()
 
 
-def date(ordinal=0):
+def date(sss='0'):
     '''Turn a base number (or an epoch time or a millisecond epoch time) into a date
-    >>> date(716257)
+    >>> date('716257')
     '1962-01-17'
-    >>> date(3652059)
+    >>> date('3652059')
     '9999-12-31'
-    >>> date(3652060)
+    >>> date('3652060')
     '1970-02-12T07:27:40'
-    >>> date(100000000000)
+    >>> date('100000000000')
     '5138-11-16T09:46:40'
-    >>> date(100000000001)
+    >>> date('100000000001')
     '1973-03-03T09:46:40.001000'
-    >>> date(10) == (datetime.date.today() + datetime.timedelta(days=10)).isoformat()
+    >>> date('10') == (datetime.date.today() + datetime.timedelta(days=10)).isoformat()
     True
-    >>> date('ts')
-    'date(ts)'
-    >>> date(-10000000000000000000000000) == date(0)
+    >>> date('-10000000000000000000000000') == date('0')
     True
-    >>> date(-2000) == date(0)
+    >>> date('-2000') == date('0')
     True
-    >>> date(base(730486))
+    >>> date() == datetime.date.today().isoformat()
+    True
+    >>> date(730486)
     '2001-01-01'
     '''
-    try:
-        ordinal = int(ordinal)
-    except (TypeError, ValueError):
-        ordinal = base(ordinal)
-        if ordinal.startswith('base'):
-            return ordinal.replace('base', 'date')
+    ordinal = int(sss)
 
     if abs(ordinal) < 1000:
         dt = datetime.date.today() + datetime.timedelta(days=ordinal)
@@ -286,9 +277,9 @@ def UK_tax_year(sss):
     '''Return the UK tax year
 
     >>> UK_tax_year('1962-01-17')
-    'FY61/62'
+    'TY61/62'
     >>> UK_tax_year('2023-09-17')
-    'FY23/24'
+    'TY23/24'
 
     '''
     b = base(sss)
@@ -297,5 +288,5 @@ def UK_tax_year(sss):
     if c > b:
         year -= 1
 
-    return f'FY{year % 100}/{(year+1) % 100}'
+    return f'TY{year % 100}/{(year+1) % 100}'
 

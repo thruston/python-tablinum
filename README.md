@@ -9,24 +9,13 @@ Tablinum is a Python library to make, manipulate, and neatly print tabular outpu
 
 **Table of Contents**
 
-- [Installation](#installation)
 - [Introduction](#introduction)
-- [Usage modes](#usage-modes)
+- [Usage modes and installation](#usage-modes-and-installation)
 - [Special rows](#special-rows)
 - [Verbs in the DSL](#verbs-in-the-dsl)
 - [What counts as a number?](#what-counts-as-a-number?)
 - [Methods available for a Table object](#methods-available-for-a-table-object)
 - [License](#license)
-
-## Installation
-
-As usual in the modern Python ecosystem, you are recommended to install tablinum in to a virtual 
-environment.  Fortunately it is small and easy to install.  The only prerequisites are the tools 
-used for testing.  Everything else is self-contained, and uses only standard library modules.
-
-```console
-pip install tablinum
-```
 
 
 ## Introduction
@@ -82,17 +71,26 @@ Vim just so I could tidy it up with Tablinum.  So I have re-written my original
 Perl `tabulate` script as a Python package that can be imported, and used to
 tidy up a list of lists of data for printing directly as part of a script.
 
-## Usage modes
+## Usage modes and installation
 
 You can use Tablinum from the command line, from your editor, or as a Python module.
-In each case, you use the same mini-language of verbs to act on your table.  These
-are described in the next main section.
+In each case, you use the same mini-language of verbs to act on your table.  This
+mini-language is described in the next main section.
 
 ### Usage from the command line
 
 The package provides a command line filter "entry point" called `tablinum_filter`. 
-This  lets you get use Tablinum from the command line.  After successful installtion
-you should be able to do `tablinum_filter --h` to get this:
+This lets you get use Tablinum from the command line as a regular script.
+
+If you are always working inside a Python virtual environment, you can install the library
+and the script with:
+
+```console
+pip install tablinum
+```
+
+After successful installation you should be able to do `tablinum_filter --h` from within your 
+virtual environment, to get this:
 
     usage: tablinum_filter [-h] [--file FILE] [agenda [agenda ...]]
 
@@ -104,25 +102,47 @@ you should be able to do `tablinum_filter --h` to get this:
       --file FILE  Source file name, defaults to STDIN
 
 The script can be used with the DSL `gen` to generate data or to read from STDIN
-or from an optional file path.  If you don't like typing such a long name, then
-you could do something like `alias tbl=tablinum_filter`.
+or from an optional file path.  
+
+If you want the script part available globally, then you might prefer to install it using 
+[pipx](https://pipx.pypa.io/stable/installation/).  Once you have `pipx` available on your
+system you should be able to do.
+
+```console
+pipx install tablinum
+```
+
+Then `tablinum_filter` should be available from any command line. 
+
+If you don't like typing such a long name, then you could try something 
+like `alias tbl=tablinum_filter`.
 
 ### Usage from within Vim
 
-Assuming you have installed successfully and you can run `tablinum_filter` from the console
+The Tablinum filter was originally written for use from Vim.  Originally all you 
+had to do was store the whole script locally and set up a command that pointed to it.
+But now that it has grown into a proper Python package with an entry-point script, you
+need to install it in your system and get it working on the command line before you 
+can use it in Vim.  It is theoretically possible to get Vim to work within an activated
+Python virtual environment, but it is probably easier to use `pipx` as shown above.
+
+So, once you have installed successfully and you can run `tablinum_filter` from the console
 then you can use the same filter from within Vim, by adding a line to your `.vimrc` 
 file like this:
 
-    :command! -nargs=* -range=% Table <line1>,<line2>!tablinum_filter <q-args>
+```vimscript
+:command! -nargs=* -range=% Table <line1>,<line2>!tablinum_filter <q-args>
+```
 
 You can of course use some word other than `Table` as the command name. Perhaps
 `Tbl` ?  Take your pick, you can choose anything, except that Vim insists on
 the name starting with an uppercase letter.  
 
 With a definition like this, when you type `:Table` in normal mode in Vim, it
-will pass the current buffer to the script and replace the contents with the output.  
-If you are in Visual Line mode then the current buffer will just be the marked lines.
-If you are in Normal mode then the current buffer will be the whole file.
+will pass the current buffer to the script and replace the contents with the
+output.  If you are in Visual Line mode then the current buffer will just be
+the marked lines.  If you are in Normal mode then the current buffer will be
+the whole file.
 
     :Table [delimiter.maxsplit] [verb [option]]...
 
@@ -171,9 +191,16 @@ message will be written back in the file.  You will probably want to use the
 
 ### Usage as a Python library
 
-Tablinum can also be used from your own Python scripts.  If you have data as a
-list of lists, or a  list of strings, then you can use the package to format
-them neatly.  Something like this
+Tablinum can also be used from your own Python projects.  Assuming that you
+are working in a virtual environment, then after you have activated it you can 
+just do 
+```console
+pip install tablinum
+```
+to make the library available.  You might also add it to your `requirements.txt` file.
+
+Once installed you can use the pacakge to parse and format lists of lists or lists
+of strings.  Something like this
 
 ```python
 import tablinum
@@ -198,12 +225,16 @@ Total            123
 `parse_lol` is expecting a list of lists (or list of iterables) as shown.  But
 you can also use `tt.parse_lines(object_with_lines)` to read a file or a list of strings.
 
-    tt.parse_lines(lines_thing, splitter=re.compile('\\s\\s+'), splits=0)
+```python
+tt.parse_lines(lines_thing, splitter=re.compile('\\s\\s+'), splits=0)
+```
 
 As shown, `parse_lines` takes two optional arguments:  a regex for splitting
 and a maximum number of splits to make, where 0 means "as many as there are".
+The defaults are as shown above -- split on two or more consecutive spaces, and
+make as many splits as needed.
 
-You could also add lines one at a time using the Table.append() method.  So the example
+You can also add lines one at a time using the Table.append() method.  So the example
 above could be done as
 ```python
 import tablinum
@@ -223,7 +254,7 @@ The tabulate module overloads the `__str__` method, so that printing your Table 
 will show it neatly tabulated.  If you want the individual lines, use the `tabulate()` method
 to get a generator of neat lines.
 
-See below for all the public methods provided by a `Table` object.
+See [below](#methods-available-for-a-table-object) for all the public methods provided by a `Table` object.
 
 ## Special rows
 
@@ -496,11 +527,16 @@ and `arr (reversed(a))bc(len(c))` would give you:
 
 There are also some simple date routines included.
 
-- `base` returns the number of days since 1 Jan in the year 1 (assuming the
-  Gregorian calendar extended backwards).  The argument should be blank for
-  today, or some recognisable form of a date.
+- `base` returns an integer representing the number of days since 1 Jan in the
+  year 1 (assuming the Gregorian calendar extended backwards).  The argument
+  should be blank for today, or some recognisable form of a date.  So you can 
+  parse most common date strings.  The default is None, so that you should have
+  `base() == datetime.date.today().toordinal()`
+  
 - `date` does the opposite: given a number that represents the number of days
-  since the year dot, it returns the date in `yyyy-mm-dd` form.  There's also
+  since the year dot, it returns the date in `yyyy-mm-dd` form.  However see below
+  for special cases of small and large values.
+
 - `dow` which takes a date and returns the day of the week, as a three letter
   string.
 
@@ -531,12 +567,16 @@ And `arr a{date(base(a)+140)}` will add 20 weeks to each date
     2011-02-23  2011-07-13
     2011-03-19  2011-08-06
 
-As a convenience, if the number given to `date()` is less than 1000, then it's
-assumed that you mean a delta on today rather than a day in the pre-Christian
-era.  So `date(70)` will produce the date in 10 weeks time, and `date(-91)`
-will give you the date three months ago, and so on. `date(0)` or just `date()`
-produces today's date.  If the number you give date is large, it will be
-interpreted as epoch seconds, and if it is very large, epoch milliseconds.
+As a convenience `date()` supports some special ranges of values.
+
+- If the abs value of the number is less than 1000, then it's assumed that you
+  mean a delta on today.  So `date(70)` will produce the date in 10 weeks time,
+  and `date(-91)` will give you the date three months ago, and so on. 
+
+- `date(0)` or just `date()` produces today's date.  
+
+- If the number is larger than `datetime.date.max.toordinal`, then the number
+  will be interpreted as epoch seconds, and if it is very large, epoch milliseconds.
 
 Note: `base()` will actually recognize dates in several different (mainly ISO
 or British) forms as well as `yyyy-mm-dd`, as follows:
@@ -554,14 +594,31 @@ or British) forms as well as `yyyy-mm-dd`, as follows:
     25 December 20            %d %B %y
     25/12/2020                %d/%m/%Y
     25/12/20                  %d/%m/%y
-    Fri                       %a
-    Friday                    %A
     15-dec-2020               %d-%b-%Y
+    Friday                    %A
 
 This table shows the strftime formats used.  This is not as clever as using
 `dateutil.parser` but it does mean that the package only uses the standard Python3
-libraries.  If you want to convert from any of these formats to standard ISO format
-then do `date(base(a))`.
+libraries.  Note that for the last one, you would get the date of next Friday, 
+so `date(base('Monday'))` will give you the date of next Monday in ISO format.
+
+If you want to convert a date in column `a` from any of these formats to
+standard ISO format then do `date(base(a))`. 
+
+If you want something other than ISO date format, then `dow()` takes an optional
+second argument that can be any strftime code.  So given the table from above
+
+    2011-01-17
+    2011-02-23
+    2011-03-19
+    2011-07-05
+    
+then `arr a{dow(a, "%G-W%V-%u")}` will produce this:
+
+    2011-01-17  2011-W03-1
+    2011-02-23  2011-W08-3
+    2011-03-19  2011-W11-6
+    2011-07-05  2011-W27-2
 
 There are also a few useful functions to convert HH:MM:SS to fractional hours,
 minutes or seconds.  `hms()` takes fractional hours and produces `hh:mm:ss`,

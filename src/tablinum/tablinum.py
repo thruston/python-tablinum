@@ -55,10 +55,6 @@ Panther = {
     'lower': lambda x: str(x).lower(),
     'upper': lambda x: str(x).upper(),
     'randomd': lambda: decimal.Decimal(str(random.random())),
-    'mlog': tab_fun_maths.mlog,
-    'mexp': tab_fun_maths.mexp,
-    'angle': tab_fun_maths.angle,
-    'dir': tab_fun_maths.dir,
     'floor': math.floor,
     'time': tab_fun_dates.as_time,
     'base': tab_fun_dates.base,
@@ -70,15 +66,19 @@ Panther = {
     'mins': tab_fun_dates.mins,
     'secs': tab_fun_dates.secs,
     'uktaxyear': tab_fun_dates.UK_tax_year,
-    'pi': tab_fun_maths.PI,
-    'tau': tab_fun_maths.TAU,
+    'angle': tab_fun_maths.angle,
     'cos': tab_fun_maths.cos, 'cosd': tab_fun_maths.cosd,
     'tan': tab_fun_maths.cos, 'tand': tab_fun_maths.tand,
     'hex': tab_fun_maths.decimal_to_hex,
     'oct': tab_fun_maths.decimal_to_oct,
+    'dir': tab_fun_maths.dir,
     'factors': tab_fun_maths.factors,
+    'mexp': tab_fun_maths.mexp,
+    'mlog': tab_fun_maths.mlog,
+    'pi': tab_fun_maths.PI,
     'hypot': tab_fun_maths.pyth_add,
     'sin': tab_fun_maths.sin, 'sind': tab_fun_maths.sind,
+    'tau': tab_fun_maths.TAU,
     'len': tab_fun_useful.length,
     'all': tab_fun_useful.t_all,
     'any': tab_fun_useful.t_any,
@@ -109,10 +109,10 @@ def as_numeric_tuple(x, backwards=False):
     (3.14, '3.14')
 
     >>> as_numeric_tuple("2020-05-01")
-    (1588287600, '2020-05-01')
+    (737546, '2020-05-01')
 
     >>> as_numeric_tuple("2 May 2020")
-    (1588374000, '2 MAY 2020')
+    (737547, '2 MAY 2020')
 
     >>> as_numeric_tuple("A19")
     (-1000000000000.0, 'A000000000000019')
@@ -126,7 +126,7 @@ def as_numeric_tuple(x, backwards=False):
     (-1000000000000.0, 'WAR OF THE ROSES')
 
     >>> as_numeric_tuple("")
-    (-1000000000000.0, '')
+    (1000000000000.0, '')
 
     >>> as_numeric_tuple("50k")
     (50000.0, '50K')
@@ -151,7 +151,7 @@ def as_numeric_tuple(x, backwards=False):
     if backwards:
         alpha, omega = omega, alpha
 
-    if x is None:
+    if x is None or x == '':
         return (omega, '')  # put it at the bottom
 
     x = x.upper()
@@ -162,7 +162,7 @@ def as_numeric_tuple(x, backwards=False):
         pass
 
     try:
-        return (int(tab_fun_dates.parse_date(x).strftime("%s")), x)
+        return (tab_fun_dates.parse_date(x).toordinal(), x)   # make parse date return epoch sec string
     except ValueError:
         pass
 
