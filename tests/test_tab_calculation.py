@@ -278,3 +278,33 @@ D     0.7476  0.9234  0.8035  0.267833333333
 4  11  0.242424242424
 5  14  0.238095238095
 '''.strip())
+
+
+    def test_shorthand_substitutions(self):
+        self.tab.do("clear gen 1:5 arr a(4214a) arr ab(b mod 23)")
+        self.assertEqual(str(self.tab), '''
+1   4214   5
+2   8428  10
+3  12642  15
+4  16856  20
+5  21070   2
+'''.strip())
+
+        self.tab.do("arr ~(c<>15)")
+        self.assertEqual(str(self.tab), '''
+1   4214   5   True
+2   8428  10   True
+3  12642  15  False
+4  16856  20   True
+5  21070   2   True
+'''.strip())
+
+        self.tab.do("arr a(b mod 100)c arr abc(b++c)")
+        self.assertEqual(str(self.tab), '''
+1  14   5  14.8660687473
+2  28  10  29.7321374946
+3  42  15  44.5982062420
+4  56  20  59.4642749893
+5  70   2  70.0285656000
+'''.strip())
+

@@ -103,11 +103,11 @@ West    2200  2500  1990  2600
         self.assertEqual(str(self.tab), summer)
 
         self.tab.parse_lines(sales.splitlines())
-        self.tab.do("pivot first")
+        self.tab.do("pivot alpha")
         self.assertEqual(str(self.tab), summer)
 
         self.tab.parse_lines(sales.splitlines())
-        self.tab.do("pivot string")
+        self.tab.do("pivot omega")
         self.assertEqual(str(self.tab), summer)
 
         self.tab.parse_lines(sales.splitlines())

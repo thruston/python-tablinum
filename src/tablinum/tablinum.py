@@ -2,7 +2,7 @@
 '''Tablinum
 
 A module to line up text tables.
-Toby Thurston -- 19 Apr 2024
+Toby Thurston -- 24 Apr 2024
 '''
 
 import argparse
@@ -167,18 +167,15 @@ def as_numeric_tuple(x, backwards=False):
         pass
 
     # is this a time?
-    m = re.match(r'(\d+):([0-5]\d):([0-5]\d(\.\d+)?)', x)
-    if m is not None:
+    if (m := re.match(r'(\d+):([0-5]\d):([0-5]\d(\.\d+)?)', x)) is not None:
         return (int(m.group(1)) * 3600 + int(m.group(2)) * 60 + float(m.group(3)), x)
 
-    m = re.match(r'(\d+):([0-5]\d(\.\d+)?)', x)
-    if m is not None:
+    if (m := re.match(r'(\d+):([0-5]\d(\.\d+)?)', x)) is not None:
         return (int(m.group(1)) * 60 + float(m.group(2)), x)
 
     # pad trailing numbers with zeros
     # Make A1, A2, A10 etc sortable...
-    m = re.match(r'(\D+)(\d+["\']?)\Z', x)
-    if m is not None:
+    if (m := re.match(r'(\D+)(\d+["\']?)\Z', x)) is not None:
         return (alpha, m.group(1) + m.group(2).zfill(15))
 
     si_values = {
@@ -186,8 +183,7 @@ def as_numeric_tuple(x, backwards=False):
         'KB': 1024, 'MB': 1048576, 'GB': 1073741824, 'TB': 1099511627776,
         'KIB': 1024, 'MIB': 1048576, 'GIB': 1073741824, 'TIB': 1099511627776,
     }
-    m = re.match(r'(\d+\.\d*|\.?\d+)\s?([BKMGT](I?B)?)', x)
-    if m is not None:
+    if (m := re.match(r'(\d+\.\d*|\.?\d+)\s?([BKMGT](I?B)?)', x)) is not None:
         return (float(m.group(1)) * si_values.get(m.group(2), 1), x)
 
     # remove leading articles (Library sort)
@@ -266,8 +262,18 @@ def is_as_number(sss):
     return (False, sss)
 
 
-def as_decimal(n, na_value=decimal.Decimal('0')):
-    "Make this a decimal"
+def as_decimal(n=0, na_value=decimal.Decimal('0')):
+    '''Make this a decimal
+
+    >>> as_decimal('123.45')
+    Decimal('123.45')
+    >>> as_decimal()
+    Decimal('0')
+    >>> as_decimal('1E234')
+    Decimal('1.00000000000E+234')
+    >>> as_decimal('1E2341412541245251234534')
+    Decimal('0')
+    '''
     try:
         return decimal.Decimal(n) + 0
     except decimal.Overflow:
@@ -714,6 +720,7 @@ class Table:
         if not append:
             self.clear()
             self.indent = 99
+
         for raw_line in lines_thing:
             raw_line = raw_line.replace("\t", "    ")
             stripped_line = raw_line.strip()
@@ -725,7 +732,8 @@ class Table:
                 self.add_comment(stripped_line)
             else:
                 self.append(splitter.split(stripped_line, maxsplit=splits))
-                self.indent = min(self.indent, len(raw_line) - len(raw_line.lstrip()))
+                if not append:
+                    self.indent = min(self.indent, len(raw_line) - len(raw_line.lstrip()))
         # catch empty tables
         if not self.data:
             self.indent = 0
@@ -787,7 +795,8 @@ class Table:
                 r.extend([filler] * (n - self.cols))
             self.cols = n
 
-        # they should all be strings, and normalize space in last column...
+        # if there are any cells in the new row, then insert at "i"
+        # make sure values are strings, and normalize space in last cell
         if n > 0:
             self.data.insert(i, [str(x) for x in row[:-1]] + [' '.join(str(row[-1]).split())])
 
@@ -1037,12 +1046,10 @@ class Table:
     def _generate_new_rows(self, count_or_range):
         "Add some more data on the bottom"
 
-        m = re.match(r'([-+]?\d+)', count_or_range)
-        if m is not None:
+        if (m := re.match(r'([-+]?\d+)', count_or_range)) is not None:
             alpha = int(m.group(1))
 
-            m = re.match(r'(?:[-+]?\d+)(?:\D+?)([-+]?\d+)$', count_or_range)
-            if m is not None:
+            if (m := re.match(r'(?:[-+]?\d+)(?:\D+?)([-+]?\d+)$', count_or_range)) is not None:
                 omega = int(m.group(1))
             else:
                 omega = 1
@@ -1054,8 +1061,7 @@ class Table:
             return
 
         # Labels * Cols...
-        m = re.match(r'([A-Za-z]+)(\d)?$', count_or_range)
-        if m is not None:
+        if (m := re.match(r'([A-Za-z]+)(\d)?$', count_or_range)) is not None:
             labels = m.group(1)
             columns = 1 if m.group(2) is None else int(m.group(2))
             self.parse_lol(list([*x] for x in itertools.product(labels, repeat=columns)), append=True)
@@ -1233,18 +1239,18 @@ class Table:
             'count': (builtins.len, as_decimal),
             'mean': (lambda a: statistics.mean(a) if a else 'NA', as_decimal),
             'any': (builtins.any, as_decimal),
-            'first': (lambda a: a[0] if a else '-', str),
-            'string': (lambda a: a[0] if a else '-', str),
-            'last': (lambda a: a[-1] if a else '-', str),
+            'alpha': (lambda a: a[0] if a else '-', str),
+            'omega': (lambda a: a[-1] if a else '-', str),
         }
 
+        shape = shape.lower()
+
         for k in pivot_functions_for:
-            if k.startswith(shape.lower()):
+            if k.startswith(shape):
                 self._wrangle_wide(*pivot_functions_for[k])
                 return
 
-        m = re.match(r'long([1-9a-o])?$', shape)
-        if m is None:
+        if (m := re.match(r'long([1-9a-o])?$', shape)) is None:
             return
 
         if m.group(1) is None:
@@ -1746,14 +1752,12 @@ def filter(argv=sys.argv[1:]):
     agenda = ' '.join(args.agenda).replace('\\', '').split()
 
     # Get the delimiter from the agenda if possible
-    
-
     try:
         delim = agenda.pop(0)
     except IndexError:
         delim = ''
     else:
-        # If the removed delim is starts with alphabetic, put it back and reset delim to None
+        # If the removed delim starts with alphabetic, put it back and reset delim to None
         if re.match(r'^[a-zA-Z]', delim):
             agenda.insert(0, delim)
             delim = ''
@@ -1790,18 +1794,19 @@ def filter(argv=sys.argv[1:]):
 
     else:
         # check for a maxsplit spec ".3", "2.4" etc
-        mm = re.match(r'(\d*)\.(\d+)', delim)
-        if mm is not None:
-            delim = mm.group(1)
+        if (m := re.match(r'(\d*)\.(\d+)', delim)) is not None:
+            delim = m.group(1)
             if delim == '':
                 delim = '2'
-            cell_limit = int(mm.group(2))
+            cell_limit = int(m.group(2))
         else:
             cell_limit = 0
+
         if delim.isdigit():
             in_sep = re.compile(rf'\s{{{delim},}}')
         else:
             in_sep = re.compile(re.escape(delim))
+
         table.parse_lines(fh, splitter=in_sep, splits=cell_limit)
 
     table.do(agenda)

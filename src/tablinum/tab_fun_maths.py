@@ -228,9 +228,10 @@ def si(amount):
 
     """
     sips = ' kMGTPE'
-    m = re.match(rf'([-+]?(?:\d+\.\d*|\.\d+|0|[1-9]\d*))\s*([{sips}])\Z', str(amount))
-    if m is not None:
+    sipat = re.compile(rf'([-+]?(?:\d+\.\d*|\.\d+|0|[1-9]\d*))\s*([{sips}])\Z')
+    if (m := sipat.match(str(amount))) is not None:
         return decimal.Decimal(m.group(1)) * 10 ** (3 * sips.index(m.group(2)))
+
     try:
         n = decimal.Decimal(amount)
     except decimal.InvalidOperation:
@@ -240,27 +241,30 @@ def si(amount):
         return '{:7.3f} {}'.format(n / (10 ** (3 * e)), sips[e]).strip()
 
 
-def ifactors(n):
-    "Iterate through the factors"
+def factors(n):
+    '''find the factors of n and return them in a tuple ... only use this for small numbers
+    >>> factors(12345)
+    (3, 5, 823)
+    >>> factors(128)
+    (2, 2, 2, 2, 2, 2, 2)
+    >>> factors(817)
+    (19, 43)
+    >>> factors(1000038)
+    (2, 3, 13, 12821)
+    >>> factors(1000039)
+    (1000039,)
+    >>> factors(8761591) 
+    (2957, 2963)
+    '''
+    out = []
     f = 2
-    f_cycle = itertools.cycle([4, 2, 4, 2, 4, 6, 2, 6])
-    increments = itertools.chain([1, 2, 2], f_cycle)
-    for incr in increments:
+    for incr in itertools.chain([1, 2, 2], itertools.cycle([4, 2, 4, 2, 4, 6, 2, 6])):
         if f * f > n:
             break
         while n % f == 0:
-            yield f
+            out.append(f)
             n //= f
         f += incr
     if n > 1:
-        yield n
-
-
-def factors(n):
-    '''find the factors of n and return a list... very slowly
-    >>> factors(12345)
-    [3, 5, 823]
-    >>> factors(128)
-    [2, 2, 2, 2, 2, 2, 2]
-    '''
-    return list(ifactors(n))
+        out.append(n)
+    return tuple(out)
