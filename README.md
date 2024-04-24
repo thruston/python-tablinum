@@ -605,7 +605,7 @@ so `date(base('Monday'))` will give you the date of next Monday in ISO format.
 If you want to convert a date in column `a` from any of these formats to
 standard ISO format then do `date(base(a))`. 
 
-If you want something other than ISO date format, then `dow()` takes an optional
+If you want something other than ISO date format, then `date()` takes an optional
 second argument that can be any strftime code.  So given the table from above
 
     2011-01-17
@@ -613,7 +613,7 @@ second argument that can be any strftime code.  So given the table from above
     2011-03-19
     2011-07-05
     
-then `arr a{dow(a, "%G-W%V-%u")}` will produce this:
+then `arr a{date(a, "%G-W%V-%u")}` will produce this:
 
     2011-01-17  2011-W03-1
     2011-02-23  2011-W08-3

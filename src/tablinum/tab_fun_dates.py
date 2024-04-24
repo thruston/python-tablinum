@@ -21,6 +21,12 @@ def parse_date(sss, today=None):
     >>> parse_date(20010101)
     datetime.date(2001, 1, 1)
 
+    >>> parse_date(3652059)
+    datetime.date(9999, 12, 31)
+
+    >>> parse_date('1')
+    datetime.date(1, 1, 1)
+
     >>> parse_date("730486")
     datetime.date(2001, 1, 1)
     
@@ -32,6 +38,7 @@ def parse_date(sss, today=None):
 
     >>> parse_date("2022-W47-2")
     datetime.date(2022, 11, 22)
+
     >>> parse_date("Fri 1st Apr 2022")
     datetime.date(2022, 4, 1)
 
@@ -53,12 +60,12 @@ def parse_date(sss, today=None):
     mino = datetime.date.min.toordinal()
 
     if isinstance(sss, int):
-        if mino <= sss < maxo:
+        if mino <= sss <= maxo:
             return datetime.date.fromordinal(sss)
    
     sss = str(sss)
 
-    if sss.isdigit() and int(sss) < maxo:
+    if sss.isdigit() and int(sss) <= maxo:
         return datetime.date.fromordinal(int(sss))
 
     days = "Monday Tuesday Wednesday Thursday Friday Saturday Sunday".split()
@@ -87,7 +94,7 @@ def parse_date(sss, today=None):
     raise ValueError
 
 
-def dow(sss, date_format="%a"):
+def dow(sss):
     '''Is it Friday yet?
     >>> dow("1 January 2001")
     'Mon'
@@ -95,19 +102,10 @@ def dow(sss, date_format="%a"):
     'Mon'
     >>> dow("31/12/2021")
     'Fri'
-    >>> dow("1 January 2001", "%A")
-    'Monday'
-
-    You can actually use this to produce any strftime format...
-
-    >>> dow("25 Dec 2001", "%c")
-    'Tue Dec 25 00:00:00 2001'
-
-    >>> dow("25 Dec 2001", "%u")
-    '2'
 
     '''
-    return parse_date(sss).strftime(date_format)
+    d = datetime.date.today() if sss is None else parse_date(sss)
+    return d.strftime('%a')
 
 
 def base(sss=None):
@@ -131,13 +129,11 @@ def base(sss=None):
     >>> base() == datetime.date.today().toordinal()
     True
     '''
-    if sss is None:
-        return datetime.date.today().toordinal()
-
-    return parse_date(sss).toordinal()
+    d = datetime.date.today() if sss is None else parse_date(sss)
+    return d.toordinal()
 
 
-def date(sss='0'):
+def date(sss='0', format=None):
     '''Turn a base number (or an epoch time or a millisecond epoch time) into a date
     >>> date('716257')
     '1962-01-17'
@@ -159,22 +155,27 @@ def date(sss='0'):
     True
     >>> date(730486)
     '2001-01-01'
+    >>> date(730486, '%a')
+    'Mon'
     '''
     ordinal = int(sss)
 
     if abs(ordinal) < 1000:
-        dt = datetime.date.today() + datetime.timedelta(days=ordinal)
+        d = datetime.date.today() + datetime.timedelta(days=ordinal)
     elif ordinal > 100000000000:  # about 5000 AD as an epoch, so assume epoch ms
-        dt = datetime.datetime.fromtimestamp(ordinal / 1000)
+        d = datetime.datetime.fromtimestamp(ordinal / 1000)
     elif ordinal > datetime.date.max.toordinal():  # > max date, so assume epoch seconds
-        dt = datetime.datetime.fromtimestamp(ordinal)
+        d = datetime.datetime.fromtimestamp(ordinal)
     else:
         try:
-            dt = datetime.date.fromordinal(ordinal)
+            d = datetime.date.fromordinal(ordinal)
         except (TypeError, ValueError, OverflowError):
-            dt = datetime.date.today()
+            d = datetime.date.today()
 
-    return dt.isoformat()
+    if format is None:
+        return d.isoformat()
+
+    return d.strftime(format)
 
 
 def hms(fractional_things):
