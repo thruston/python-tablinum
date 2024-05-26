@@ -5,7 +5,11 @@ build-backend = "hatchling.build"
 [project]
 name = "tablinum"
 dynamic = ["version"]
-description = ''
+description = 'Tablinum is a Python library to make, manipulate, and neatly print tabular output to the console.'
+long_description = '''Tablinum is an exportable module that will line up tabular material automatically,
+and so save you hours of time faffing about with format and alignment.  As a script
+it provides a filter with a simple DSL (domain-specific language) that can be used
+to make and manipulate tables in editors that support external filters (such as Vim).'''
 readme = "README.md"
 requires-python = ">=3.8"
 license = "MIT"
@@ -82,3 +86,10 @@ exclude_lines = [
   "if __name__ == .__main__.:",
   "if TYPE_CHECKING:",
 ]
+
+[tool.pytest.ini_options]
+ addopts = [
+     '--import-mode=importlib',
+     '--doctest-modules',
+     '--pyargs',
+ ]

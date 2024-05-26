@@ -25,6 +25,9 @@ import tokenize
 import tablinum.tab_fun_dates as tab_fun_dates
 import tablinum.tab_fun_maths as tab_fun_maths
 import tablinum.tab_fun_useful as tab_fun_useful
+# import tab_fun_dates
+# import tab_fun_maths
+# import tab_fun_useful
 
 
 # Panther is a big cat of functions for column maths, using the Decimal
@@ -145,6 +148,13 @@ def as_numeric_tuple(x, backwards=False):
 
     >>> as_numeric_tuple("Monday") < as_numeric_tuple("Friday")
     True
+
+    >>> as_numeric_tuple('192.168.0.1')
+    (3232235521, '192.168.0.1')
+
+    >>> as_numeric_tuple('00:01:E6:2C:42:1D')
+    (8156627485, '00:01:E6:2C:42:1D')
+
     '''
 
     alpha, omega = -1e12, 1e12
@@ -162,16 +172,29 @@ def as_numeric_tuple(x, backwards=False):
         pass
 
     try:
-        return (tab_fun_dates.parse_date(x).toordinal(), x)   # make parse date return epoch sec string
+        # try to parse the date and return an ordinal number
+        return (tab_fun_dates.parse_date(x).toordinal(), x)
     except ValueError:
         pass
 
     # is this a time?
-    if (m := re.match(r'(\d+):([0-5]\d):([0-5]\d(\.\d+)?)', x)) is not None:
+    if (m := re.match(r'(\d+):([0-5]\d):([0-5]\d(\.\d+)?)\Z', x)) is not None:
         return (int(m.group(1)) * 3600 + int(m.group(2)) * 60 + float(m.group(3)), x)
 
-    if (m := re.match(r'(\d+):([0-5]\d(\.\d+)?)', x)) is not None:
+    if (m := re.match(r'(\d+):([0-5]\d(\.\d+)?\Z)', x)) is not None:
         return (int(m.group(1)) * 60 + float(m.group(2)), x)
+
+    # is this an IP4 address?
+    if (m := re.match(r'(\d+)\.(\d+)\.(\d+)\.(\d+)\Z', x)) is not None:
+        a, b, c, d = map(int, m.groups())
+        if all(t < 256 for t in (a, b, c, d)):
+            return (a * 16777216 + b * 65536 + c * 256 + d, x)
+
+    # is this a MAC address
+    if all(t in '0123456789ABCDEF:' for t in x):
+        if x.count(':') == 5:
+            if len(x) == 17:
+                return (int(x.replace(':', ''), 16), x)
 
     # pad trailing numbers with zeros
     # Make A1, A2, A10 etc sortable...
@@ -254,7 +277,8 @@ def is_as_number(sss):
         if trial_number.endswith('%'):
             return (True, decimal.Decimal(trial_number[:-1]) / 100)
         if trial_number[-1] in suffix:
-            return (True, decimal.Decimal(trial_number[:-1]) + decimal.Decimal(suffix.index(trial_number[-1])) / 4)
+            quarters = decimal.Decimal(suffix.index(trial_number[-1])) / 4
+            return (True, decimal.Decimal(trial_number[:-1]) + quarters)
         return (True, decimal.Decimal(trial_number))
     except ArithmeticError:
         pass
@@ -270,15 +294,13 @@ def as_decimal(n=0, na_value=decimal.Decimal('0')):
     >>> as_decimal()
     Decimal('0')
     >>> as_decimal('1E234')
-    Decimal('1.00000000000E+234')
+    Decimal('1E+234')
     >>> as_decimal('1E2341412541245251234534')
     Decimal('0')
     '''
     try:
-        return decimal.Decimal(n) + 0
-    except decimal.Overflow:
-        return na_value
-    except decimal.InvalidOperation:
+        return decimal.Decimal(n)
+    except decimal.DecimalException:
         return na_value
 
 
@@ -576,9 +598,12 @@ def statistical_summary(numbers):
     '''return a 4/6 field summary of a list of numbers
     >>> statistical_summary([])
     ''
-    >>> statistical_summary([decimal.Decimal(x) for x in '36.4 67.1 82.7 34.2 96.8 10.9 19.1 71.8 66.0 29.2'.split()])
+
+    >>> tdat = [decimal.Decimal(x) for x in '36.4 67.1 82.7 34.2 96.8 10.9 19.1 71.8 66.0 29.2'.split()]
+    >>> statistical_summary(tdat)
     'Min: 10.9  Mean: 51.42  Max: 96.8'
-    >>> statistical_summary([decimal.Decimal(x) for x in '0 1 2 3 4 5 6 8 9 36.4 67.1 82.7 34.2 96.8 10.9 29.2'.split()])
+    >>> tdat = [decimal.Decimal(x) for x in '0 1 2 3 4 5 6 8 9 36.4 67.1 82.7 34.2 96.8 10.9 29.2'.split()]
+    >>> statistical_summary(tdat)
     'Min: 0  Q25: 3.75  Median: 8.5  Mean: 24.70625  Q75: 34.750  Max: 96.8'
 
     '''
@@ -1501,22 +1526,38 @@ class Table:
                     new_row.append("-")
             self.append(new_row)
 
-    def _fancy_col_index(self, col_spec):
+    def _fancy_col_index(self, column_letter):
         '''Find me an index, returns index + T/F to say if letter was upper case
+
+        >>> t = Table()
+        >>> a = (1, 2, 3, 4, 5, 6, 7, 8)
+        >>> b = (5, 23, 41, 2, 3, 4, 5, 6)
+        >>> t.parse_lol((a, b))
+        >>> t._fancy_col_index('a')
+        (0, False)
+        >>> t._fancy_col_index('B')
+        (1, True)
+        >>> t._fancy_col_index('Z')
+        (7, True)
+        >>> t._fancy_col_index('5')
+        (5, False)
+        >>> t._fancy_col_index('!!')
+        (None, False)
+
         '''
 
         flag = False
-        if col_spec in string.ascii_uppercase:
+        if column_letter in string.ascii_uppercase:
             flag = True
-            col_spec = col_spec.lower()
+            column_letter = column_letter.lower()
 
-        if col_spec in string.ascii_lowercase:
-            col_spec = ord(col_spec) - ord('a')
+        if column_letter in string.ascii_lowercase:
+            column_letter = ord(column_letter) - ord('a')
 
         try:
-            c = int(col_spec)
+            c = int(column_letter)
         except ValueError:
-            self.messages.append('?! colspec ' + col_spec)
+            self.messages.append('?! colspec ' + column_letter)
             return (None, flag)
 
         if c >= self.cols:
@@ -1527,20 +1568,30 @@ class Table:
         '''Sort the table
         By default sort by all columns left to right.
 
-        If the arg is a single number and abs(arg) < self.cols then sort on that column
+        Sort in groups where the col spec indicates the groups of cols
 
-        Otherwise sort in groups where the col spec indicates the groups of cols
+        a means use row[0] as the key
 
         abc means use the concatenation of row[0] + row[1] + row[2]
+
         upper case groups mean reverse sort
 
         groups are done right to left...
 
+        @ at the front of the colspec means pop first row, sort, then push row bacl
+        = at the front of the colspec means plain sort without smarts
+
         '''
         header = None
-        if '@' in col_spec:
+        want_smart = True
+
+        if col_spec.startswith('@'):
+            col_spec = col_spec[1:]
             header = self.pop(0)
-            col_spec = col_spec.replace('@', '')
+
+        if col_spec.startswith('='):
+            col_spec = col_spec[1:]
+            want_smart = False
 
         if col_spec is None or col_spec == '':
             col_spec = string.ascii_lowercase[:self.cols]
@@ -1549,15 +1600,15 @@ class Table:
             self.do(f"arr ({col_spec})~ sort a arr -a")
 
         else:
-            try:
-                i = int(col_spec)
-            except ValueError:
-                for col in col_spec[::-1]:
-                    c, want_reverse = self._fancy_col_index(col)
-                    self.data.sort(key=lambda row: as_numeric_tuple(row[c], want_reverse), reverse=want_reverse)
-            else:
-                if -self.cols <= i < self.cols:
-                    self.data.sort(key=lambda row: as_numeric_tuple(row[i], False))
+            for col in col_spec[::-1]:
+                c, want_reverse = self._fancy_col_index(col)
+                if c is None:
+                    continue
+                if want_smart:
+                    self.data.sort(key=lambda row: as_numeric_tuple(row[c], want_reverse),
+                                   reverse=want_reverse)
+                else:
+                    self.data.sort(key=lambda row: row[c], reverse=want_reverse)
 
         if header is not None:
             self.insert(0, header)
@@ -1722,9 +1773,10 @@ class Table:
                 if ex == 'rule' and ruler is not None:
                     if ruler == "plain":
                         yield ' ' * self.indent \
-                            + '-' * (sum(widths) + self.cols * len(separator) - len(separator) + len(eol_marker))
+                            + '-' * (sum(widths) + (self.cols - 1) * len(separator) + len(eol_marker))
                     elif ruler == "piped":
-                        yield ' ' * self.indent + separator.join(_pipe_rule(w, a) for w, a in zip(widths, aligns))
+                        yield ' ' * self.indent \
+                            + separator.join(_pipe_rule(w, a) for w, a in zip(widths, aligns))
                     else:
                         yield ruler
 
@@ -1741,7 +1793,7 @@ class Table:
             yield ' ' * self.indent + separator.join(out).rstrip() + eol_marker  # no trailing blanks
 
 
-def filter(argv=sys.argv[1:]):
+def filter():
     parser = argparse.ArgumentParser()
     parser.add_argument("agenda", nargs='*', help="[delimiter.maxsplit] [verb [option]]...")
     parser.add_argument("--file", help="Source file name, defaults to STDIN")
@@ -1814,6 +1866,7 @@ def filter(argv=sys.argv[1:]):
 
     if args.file is not None:
         fh.close()
+
 
 if __name__ == "__main__":
     filter()

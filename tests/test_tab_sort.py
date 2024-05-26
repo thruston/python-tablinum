@@ -33,10 +33,40 @@ Saturday   0.62  0.02
 Sunday     0.34  0.25
 '''.strip()
 
+        self.addresses = '''
+Mac                IP
+00:01:E6:2C:42:1D  192.168.0.12
+3C:07:54:3D:3F:82  192.168.0.13
+60:C5:47:21:D7:E9  192.168.0.16
+2C:4D:54:74:A4:D8  192.168.0.4
+50:C7:BF:1C:88:66  192.168.0.3
+74:D0:2B:5D:CD:C0  192.168.0.2
+'''.strip()
+
+        self.addresses_by_A = '''
+Mac                IP
+00:01:E6:2C:42:1D  192.168.0.12
+2C:4D:54:74:A4:D8  192.168.0.4
+3C:07:54:3D:3F:82  192.168.0.13
+50:C7:BF:1C:88:66  192.168.0.3
+60:C5:47:21:D7:E9  192.168.0.16
+74:D0:2B:5D:CD:C0  192.168.0.2
+'''.strip()
+
+        self.addresses_by_B = '''
+Mac                IP
+74:D0:2B:5D:CD:C0  192.168.0.2
+50:C7:BF:1C:88:66  192.168.0.3
+2C:4D:54:74:A4:D8  192.168.0.4
+00:01:E6:2C:42:1D  192.168.0.12
+3C:07:54:3D:3F:82  192.168.0.13
+60:C5:47:21:D7:E9  192.168.0.16
+'''.strip()
+
     def test_filter(self):
         "Select matching rows"
         self.tab.parse_lines(self.rain.splitlines())
-        self.tab.do('sort')  # missing predicate does nothing because we start sorted
+        self.tab.do('sort')  # missing predicate does nothing here
         self.assertEqual(str(self.tab), self.rain)
         self.tab.do('sort j')
         expected = '''
@@ -190,3 +220,21 @@ Saturday   0.62  0.02
 Sunday     0.34  0.25
 '''.strip())
 
+        self.tab.do('sort =a')
+        self.assertEqual(str(self.tab), '''
+Friday     0.94  0.28
+Monday     0.38  0.52
+Saturday   0.62  0.02
+Sunday     0.34  0.25
+Thursday   0.22  0.94
+Tuesday    0.41  0.14
+Wednesday  0.91  0.17
+'''.strip())
+
+    def test_special_sorts(self):
+        "Smart sorting"
+        self.tab.parse_lines(self.addresses.splitlines())
+        self.tab.do('sort')
+        self.assertEqual(str(self.tab), self.addresses_by_A)
+        self.tab.do('sort b')
+        self.assertEqual(str(self.tab), self.addresses_by_B)

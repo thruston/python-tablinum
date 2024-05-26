@@ -108,6 +108,17 @@ class TestTable(unittest.TestCase):
     2020-05-19  09:20:30  29.1  48.6
     2020-05-19  09:20:40  22.5  50.5
 ''')
+        self.tab.do("arr -1")
+        self.assertEqual(str(self.tab) + "\n", '''Only lowercase ASCII allowed after -
+
+    2020-05-19  09:18:00  30.1   4.5
+    2020-05-19  09:18:10  29.4   4.5
+    2020-05-19  09:18:20  28.6   4.7
+    2020-05-19  09:18:30  31.2   5.0
+    2020-05-19  09:18:40  31.9   6.3
+    2020-05-19  09:20:30  29.1  48.6
+    2020-05-19  09:20:40  22.5  50.5
+''')
 
     def test_arrange_C(self):
         self.tab.parse_lines('''

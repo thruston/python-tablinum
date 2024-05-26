@@ -1260,6 +1260,22 @@ and `sort c` produces this
     20 Feb 2014  Social Darwinism               p5912
     11 Feb 2016  Rumi's Poetry                  p7019
 
+The smarts also recognize IP addresses, MAC addresses, and SI unit suffixes.
+If the smarts get your sorting wrong, then you can turn them off by adding "="
+to the front of the sort column specifier.  So you can do `sort =b` on the 
+table above to get this:
+
+    24 Nov 2016  Baltic Crusades                p5060
+    24 Sep 2020  Cave Art                       p904
+    04 Feb 2016  Chromatography                 p11
+    21 Sep 2017  Kant's Categorical Imperative  p265
+    11 Feb 2016  Rumi's Poetry                  p7019
+    20 Feb 2014  Social Darwinism               p5912
+    03 May 2018  The Almoravid Empire           p3972
+    29 Oct 2015  The Empire of Mali             p423
+    27 Feb 2020  The Evolution of Horses        p233
+    30 Sep 2021  The Tenant of Wildfell Hall    p780
+
 You can also sort on simple functions; essentially any function that you can use with `arr`.
 So given a table like this:
 
