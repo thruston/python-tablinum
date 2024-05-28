@@ -64,6 +64,7 @@ Panther = {
     'date': tab_fun_dates.date,
     'dow': tab_fun_dates.dow,
     'epoch': tab_fun_dates.epoch,
+    'make_date': tab_fun_dates.make_date,
     'hms': tab_fun_dates.hms,
     'hr': tab_fun_dates.hr,
     'mins': tab_fun_dates.mins,
@@ -1520,6 +1521,8 @@ class Table:
                         new_row.append(_replace_values(literal_code, values))
                     else:
                         new_row.append(new_value)
+                except KeyError as e:
+                    new_row.append('!!')
                 except (ValueError, TypeError, NameError, AttributeError, decimal.InvalidOperation):
                     new_row.append(_replace_values(literal_code, values))
                 except ZeroDivisionError:

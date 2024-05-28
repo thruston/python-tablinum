@@ -1,7 +1,6 @@
-#! /usr/bin/env python3
 '''Date functions to use in tabulate `arr` expressions
 
-date()        takes int, returns string 
+date()        takes int, returns string
 parse_date()  takes int or string, returns datetime.date
 base()        takes string, returns int
 
@@ -10,7 +9,6 @@ Toby Thurston -- 21 Apr 2024
 
 '''
 import datetime
-import re
 
 
 def parse_date(sss, today=None):
@@ -29,10 +27,10 @@ def parse_date(sss, today=None):
 
     >>> parse_date("730486")
     datetime.date(2001, 1, 1)
-    
+
     >>> parse_date("1 January 2001")
     datetime.date(2001, 1, 1)
-    
+
     >>> parse_date("6/7/95")
     datetime.date(1995, 7, 6)
 
@@ -62,7 +60,7 @@ def parse_date(sss, today=None):
     if isinstance(sss, int):
         if mino <= sss <= maxo:
             return datetime.date.fromordinal(sss)
-   
+
     sss = str(sss)
 
     if sss.isdigit() and int(sss) <= maxo:
@@ -110,7 +108,7 @@ def dow(sss):
 
 def base(sss=None):
     '''Get today's date as "base" number, or whatever date you give
-    
+
 
     >>> base("1 January 2001")
     730486
@@ -224,7 +222,8 @@ def as_time(time_string):
     '''Turn a possible time into hh:mm
 
     >>> a = ['12 midnight', '12.00 a.m.', '12:01 am', '1:00a.m.', '9am', '11.00am', '11:59 a.m.']
-    >>> a += ['Noon', '12 noon', '12:00 pm', '12:01 p.m.', '1:00pm', '4 p.m.', '11:00p.m.', '11:59 pm', '12:00']
+    >>> a += ['Noon', '12 noon', '12:00 pm', '12:01 p.m.', '1:00pm']
+    >>> a += ['4 p.m.', '11:00p.m.', '11:59 pm', '12:00']
     >>> ' '.join(as_time(x) for x in a)
     '00:00 00:00 00:01 01:00 09:00 11:00 11:59 12:00 12:00 12:00 12:01 13:00 16:00 23:00 23:59 12:00'
     '''
@@ -266,7 +265,8 @@ def epoch(date_time_string):
     for fd in ('%Y-%m-%d', '%d/%m/%Y', '%d-%b-%Y', '%Y%m%d'):
         for ft in ('%H:%M:%S', '%H:%M', '%H%M%S'):
             try:
-                dt = datetime.datetime.strptime(date_time_string, f'{fd} {ft}').replace(tzinfo=datetime.timezone.utc)
+                dt = datetime.datetime.strptime(date_time_string, f'{fd} {ft}')
+                dt = dt.replace(tzinfo=datetime.timezone.utc)
             except ValueError:
                 pass
             else:
@@ -291,3 +291,31 @@ def UK_tax_year(sss):
 
     return f'TY{year % 100}/{(year+1) % 100}'
 
+
+def make_date(year=datetime.date.today().year, month=1, day=1, format=None):
+    '''Return a date
+
+    >>> make_date(2023)
+    '2023-01-01'
+    >>> make_date(2023, 13)
+    '2024-01-01'
+    >>> make_date(2023, 13, 43)
+    '2024-02-12'
+
+    '''
+
+    yy = int(year)
+    mm = int(month)
+    dd = int(day)
+
+    while mm > 12:
+        yy += 1
+        mm -= 12
+
+    first_base = datetime.date(yy, mm, 1).toordinal() - 1
+    date = datetime.date.fromordinal(first_base + dd)
+
+    if format is None:
+        return date.isoformat()
+
+    return date.strftime(format)
