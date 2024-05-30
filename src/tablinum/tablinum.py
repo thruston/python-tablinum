@@ -2,7 +2,7 @@
 '''Tablinum
 
 A module to line up text tables.
-Toby Thurston -- 24 Apr 2024
+Toby Thurston -- 30 May 2024
 '''
 
 import argparse
@@ -220,7 +220,7 @@ def as_numeric_tuple(x, backwards=False):
 
 def is_as_number(sss):
     '''Input (string) Output (boolean, any)
-    if boolean is True, any is int or Decimal
+    if boolean is True, any is Decimal
     else any is string
     >>> is_as_number('')
     (False, '')
@@ -269,6 +269,8 @@ def is_as_number(sss):
 
     trial_number = ''.join(c for c in sss.lower() if c in digits + point + signs + alphabetics + suffix)
 
+    # with the base=0 argument int() will throw a ValueError unless "trial_number" 
+    # looks like a base10 integer
     try:
         return (True, decimal.Decimal(int(trial_number, 0)))
     except (ValueError, SyntaxError):
@@ -499,6 +501,8 @@ def compile_as_decimal(expr):
                 out.append((tokenize.NAME, 'randomd'))
                 out.append((tokenize.OP, '('))
                 out.append((tokenize.OP, ')'))
+            elif tn == tokenize.FSTRING_MIDDLE and tv.endswith('d'):
+                out.append((tn, tv[:-1]))  # remove trailing d (to avoid Decimal error)
             else:
                 out.append((tn, tv))
     except tokenize.TokenError:
@@ -1364,6 +1368,8 @@ class Table:
         ['(a/2)', '(b/2)', '(c/2)']
         >>> t._get_expr_list("a(date(base('Monday')+7*a))")
         ['a', "(date(base('Monday')+7*a))"]
+        >>> t._get_expr_list("ab(f'{a:04d}-{b:02}')")
+        ['a', 'b', "(f'{a:04d}-{b:02}')"]
         '''
         identity = string.ascii_lowercase[:self.cols]
         in_parens = 0
@@ -1448,19 +1454,18 @@ class Table:
     def _calculate_data(self, raw_perm):
         '''Do the work for "arr"
         '''
+        # fix up xyz etc and split up the perm into expressions
+        expressions = self._get_expr_list(raw_perm)
+        identity = string.ascii_lowercase[:self.cols]
 
-        # do deletions first
+        # now do deletions (note that _get_expr_list will have ignored the leading -)
         if raw_perm[0] == '-':
             if all(c in string.ascii_lowercase for c in raw_perm[1:]):
-                delenda = list(ord(x) - ord('a') for x in self._get_expr_list(raw_perm))
+                delenda = list(ord(x) - ord('a') for x in expressions)
                 self.data = list(list(x for i, x in enumerate(r) if i not in delenda) for r in self.data)
             else:
                 self.messages.append("Only lowercase ASCII allowed after -")
             return
-
-        # fix up xyz etc and split up the perm into expressions
-        expressions = self._get_expr_list(raw_perm)
-        identity = string.ascii_lowercase[:self.cols]
 
         def _get_value(row, c):
             '''Find a suitable value given the perm character and a row of data
@@ -1521,9 +1526,7 @@ class Table:
                         new_row.append(_replace_values(literal_code, values))
                     else:
                         new_row.append(new_value)
-                except KeyError as e:
-                    new_row.append('!!')
-                except (ValueError, TypeError, NameError, AttributeError, decimal.InvalidOperation):
+                except (KeyError, ValueError, TypeError, NameError, AttributeError, decimal.InvalidOperation):
                     new_row.append(_replace_values(literal_code, values))
                 except ZeroDivisionError:
                     new_row.append("-")

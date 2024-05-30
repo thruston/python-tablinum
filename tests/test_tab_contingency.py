@@ -1,8 +1,8 @@
 #! /usr/bin/env python3
 
 import unittest
-
 import tablinum
+
 
 class TestTableContingency(unittest.TestCase):
 
@@ -36,12 +36,11 @@ First     6.94119005507  6.92853781816
 Second    6.96413561242  6.97728134163
 '''.strip())
 
-
     def test_other_variables(self):
         self.tab.parse_lines(self.simple.splitlines())
         self.assertEqual(str(self.tab), self.simple)
 
-        self.tab.do("tap /total")  
+        self.tab.do("tap /total")
         self.assertEqual(str(self.tab), '''
 Category          Type A          Type B
 ----------------------------------------
@@ -53,7 +52,7 @@ Second    0.313513513514  0.389189189189
         self.tab.parse_lines(self.simple.splitlines())
         self.assertEqual(str(self.tab), self.simple)
 
-        self.tab.do("tap row_total*col_total/total dp 2")  
+        self.tab.do("tap row_total*col_total/total dp 2")
         self.assertEqual(str(self.tab), '''
 Category  Type A  Type B
 ------------------------

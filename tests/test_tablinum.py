@@ -292,17 +292,17 @@ A  B  A  B  A  B
 
     def test_ditto(self):
         self.tab.parse_lines('''
--  Act 3  -  -  Enzo Florimo, Hakan Hagegard, Arleen Auger, Arnold Oman
+-  Act 3  -  -  Enzo Florimo, Hakan Hagegard
 1.  "  "Io vi dico, signor"  [1:10]  "
 2.  "  Sull'aria...Cosa mi narri!...Che soave zefiretto...  [2:42]  "
 3.  "  "Ricevete, o padroncina" - "Queste sono, Madama"  [3:58]   "
 4.  "  Ecco la marcia...Eh, gia, solita usanza  [5:58]   "'''.splitlines())
         self.tab.do("ditto pop 0")
         self.assertEqual(str(self.tab) + "\n", '''
-1.  Act 3  "Io vi dico, signor"                                 [1:10]  Enzo Florimo, Hakan Hagegard, Arleen Auger, Arnold Oman
-2.  Act 3  Sull'aria...Cosa mi narri!...Che soave zefiretto...  [2:42]  Enzo Florimo, Hakan Hagegard, Arleen Auger, Arnold Oman
-3.  Act 3  "Ricevete, o padroncina" - "Queste sono, Madama"     [3:58]  Enzo Florimo, Hakan Hagegard, Arleen Auger, Arnold Oman
-4.  Act 3  Ecco la marcia...Eh, gia, solita usanza              [5:58]  Enzo Florimo, Hakan Hagegard, Arleen Auger, Arnold Oman
+1.  Act 3  "Io vi dico, signor"                                 [1:10]  Enzo Florimo, Hakan Hagegard
+2.  Act 3  Sull'aria...Cosa mi narri!...Che soave zefiretto...  [2:42]  Enzo Florimo, Hakan Hagegard
+3.  Act 3  "Ricevete, o padroncina" - "Queste sono, Madama"     [3:58]  Enzo Florimo, Hakan Hagegard
+4.  Act 3  Ecco la marcia...Eh, gia, solita usanza              [5:58]  Enzo Florimo, Hakan Hagegard
 ''')
 
     def test_dates(self):

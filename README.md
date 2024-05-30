@@ -79,7 +79,7 @@ mini-language is described in the next main section.
 
 ### Usage from the command line
 
-The package provides a command line filter "entry point" called `tablinum_filter`. 
+The package provides a command line filter "entry point" called `tablinum_filter`.
 This lets you get use Tablinum from the command line as a regular script.
 
 If you are always working inside a Python virtual environment, you can install the library
@@ -89,7 +89,7 @@ and the script with:
 pip install tablinum
 ```
 
-After successful installation you should be able to do `tablinum_filter --h` from within your 
+After successful installation you should be able to do `tablinum_filter --h` from within your
 virtual environment, to get this:
 
     usage: tablinum_filter [-h] [--file FILE] [agenda [agenda ...]]
@@ -102,9 +102,9 @@ virtual environment, to get this:
       --file FILE  Source file name, defaults to STDIN
 
 The script can be used with the DSL `gen` to generate data or to read from STDIN
-or from an optional file path.  
+or from an optional file path.
 
-If you want the script part available globally, then you might prefer to install it using 
+If you want the script part available globally, then you might prefer to install it using
 [pipx](https://pipx.pypa.io/stable/installation/).  Once you have `pipx` available on your
 system you should be able to do.
 
@@ -112,22 +112,22 @@ system you should be able to do.
 pipx install tablinum
 ```
 
-Then `tablinum_filter` should be available from any command line. 
+Then `tablinum_filter` should be available from any command line.
 
-If you don't like typing such a long name, then you could try something 
+If you don't like typing such a long name, then you could try something
 like `alias tbl=tablinum_filter`.
 
 ### Usage from within Vim
 
-The Tablinum filter was originally written for use from Vim.  Originally all you 
+The Tablinum filter was originally written for use from Vim.  Originally all you
 had to do was store the whole script locally and set up a command that pointed to it.
 But now that it has grown into a proper Python package with an entry-point script, you
-need to install it in your system and get it working on the command line before you 
+need to install it in your system and get it working on the command line before you
 can use it in Vim.  It is theoretically possible to get Vim to work within an activated
 Python virtual environment, but it is probably easier to use `pipx` as shown above.
 
 So, once you have installed successfully and you can run `tablinum_filter` from the console
-then you can use the same filter from within Vim, by adding a line to your `.vimrc` 
+then you can use the same filter from within Vim, by adding a line to your `.vimrc`
 file like this:
 
 ```vimscript
@@ -136,7 +136,7 @@ file like this:
 
 You can of course use some word other than `Table` as the command name. Perhaps
 `Tbl` ?  Take your pick, you can choose anything, except that Vim insists on
-the name starting with an uppercase letter.  
+the name starting with an uppercase letter.
 
 With a definition like this, when you type `:Table` in normal mode in Vim, it
 will pass the current buffer to the script and replace the contents with the
@@ -192,8 +192,8 @@ message will be written back in the file.  You will probably want to use the
 ### Usage as a Python library
 
 Tablinum can also be used from your own Python projects.  Assuming that you
-are working in a virtual environment, then after you have activated it you can 
-just do 
+are working in a virtual environment, then after you have activated it you can
+just do
 ```console
 pip install tablinum
 ```
@@ -441,14 +441,14 @@ expression in curly braces or parentheses:
 - `arr ~{sqrt(a)}` keeps all existing cols and adds a new col with the square root of the value in col 1.
 
 and so on.  Each single letter `a`, `b`, etc is changed into the corresponding
-cell value and then the resulting expression is evaluated.  An expression can also be 
-a constant.  So `arr ~(1)` will add a column of 1s to the table. 
+cell value and then the resulting expression is evaluated.  An expression can also be
+a constant.  So `arr ~(1)` will add a column of 1s to the table.
 
 As shown above, you can use a subset of the normal built-in or `math` functions
 such as `log` and `sqrt`, but the access to Python is not entirely general, as
 it is only intended for simple manipulation of a few values, and therefore the
 library tries quite hard to prevent you accidentally loading the `sys` module
-and deleting the contents of your file system. 
+and deleting the contents of your file system.
 
 Only the following names of functions are allowed in a calculation.
 
@@ -470,7 +470,7 @@ useful additions:  borrowing from Metapost, you can write `2a` instead of
 instead of `a%b`, and `a<>b` instead of `a!=b`; these two make it easier to use
 the filter with Vim or any other editor that gives `%` and `!` a special
 meaning on the command line. You can also use "?" in a formula to get a uniform
-random number between 0 and 1. 
+random number between 0 and 1.
 
 If you want the current row number or the total number of rows use the
 pre-defined variables `row_number` and `rows` in your formula. So with the
@@ -480,7 +480,7 @@ simple table from above, `arr ~(f'{row_number}/{rows}')` should produce this:
     Second  2  3  2/3
     Third   3  6  3/3
 
-You can also use `format` and `f''` strings. And string slices or indexes.  So
+You can also use simple `format` and `f''` strings. And string slices or indexes.  So
 
     arr (a[:2])
 
@@ -502,7 +502,26 @@ or
 
 which show how to concatenate two columns into one.  You can also include
 spaces in your formula as the argument to `arr` continues to the next verb or
-the end of the command line.
+the end of the command line.  Beware that because tablinum restricts the functions
+available in a formula, some fancy f-strings might not work.  Also beware that
+tablinum treats all numbers as decimal.Decimal objects, and that therefore the Python
+`d` suffix does not work.   So if you have this table:
+
+Year  Month  Day  Saint
+2023      1    2  Basil the Great
+2023      7   15  Swithun
+2023     11   18  Elizabeth of Hungary
+
+and you want to make a proper date column with zero filled months and days, you
+might try this: `arr (f'{a}-{b:02d}-{c:02d}')d`  but that will cause an error.
+The solution is to leave out the suffixes and rely on the defaults.
+
+So this: `arr (f'{a}-{b:02}-{c:02}')d` works correctly.
+
+Year-Month-Day  Saint
+2023-01-02      Basil the Great
+2023-07-15      Swithun
+2023-11-18      Elizabeth of Hungary
 
 There are also three functions for changing the case of a string column, so given:
 
@@ -529,10 +548,10 @@ There are also some simple date routines included.
 
 - `base` returns an integer representing the number of days since 1 Jan in the
   year 1 (assuming the Gregorian calendar extended backwards).  The argument
-  should be blank for today, or some recognisable form of a date.  So you can 
+  should be blank for today, or some recognisable form of a date.  So you can
   parse most common date strings.  The default is None, so that you should have
   `base() == datetime.date.today().toordinal()`
-  
+
 - `date` does the opposite: given a number that represents the number of days
   since the year dot, it returns the date in `yyyy-mm-dd` form.  However see below
   for special cases of small and large values.
@@ -571,9 +590,9 @@ As a convenience `date()` supports some special ranges of values.
 
 - If the abs value of the number is less than 1000, then it's assumed that you
   mean a delta on today.  So `date(70)` will produce the date in 10 weeks time,
-  and `date(-91)` will give you the date three months ago, and so on. 
+  and `date(-91)` will give you the date three months ago, and so on.
 
-- `date(0)` or just `date()` produces today's date.  
+- `date(0)` or just `date()` produces today's date.
 
 - If the number is larger than `datetime.date.max.toordinal`, then the number
   will be interpreted as epoch seconds, and if it is very large, epoch milliseconds.
@@ -599,11 +618,11 @@ or British) forms as well as `yyyy-mm-dd`, as follows:
 
 This table shows the strftime formats used.  This is not as clever as using
 `dateutil.parser` but it does mean that the package only uses the standard Python3
-libraries.  Note that for the last one, you would get the date of next Friday, 
+libraries.  Note that for the last one, you would get the date of next Friday,
 so `date(base('Monday'))` will give you the date of next Monday in ISO format.
 
 If you want to convert a date in column `a` from any of these formats to
-standard ISO format then do `date(base(a))`. 
+standard ISO format then do `date(base(a))`.
 
 If you want something other than ISO date format, then `date()` takes an optional
 second argument that can be any strftime code.  So given the table from above
@@ -612,7 +631,7 @@ second argument that can be any strftime code.  So given the table from above
     2011-02-23
     2011-03-19
     2011-07-05
-    
+
 then `arr a{date(a, "%G-W%V-%u")}` will produce this:
 
     2011-01-17  2011-W03-1
@@ -1262,7 +1281,7 @@ and `sort c` produces this
 
 The smarts also recognize IP addresses, MAC addresses, and SI unit suffixes.
 If the smarts get your sorting wrong, then you can turn them off by adding "="
-to the front of the sort column specifier.  So you can do `sort =b` on the 
+to the front of the sort column specifier.  So you can do `sort =b` on the
 table above to get this:
 
     24 Nov 2016  Baltic Crusades                p5060
