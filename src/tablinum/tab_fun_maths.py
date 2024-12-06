@@ -17,6 +17,15 @@ ONE = decimal.Decimal('1')
 ZERO = decimal.Decimal('0')
 one = decimal.Decimal('1.0000000000')
 
+def gcd_for_decimals(*decimals):
+    '''convert to int and return gcd (as int..)
+    >>> gcd(34,3)
+    1
+    >>> gcd(299,702)
+    13
+    '''
+    return math.gcd(*list(map(int,decimals)))
+
 
 def degrees(x):
     '''return radians -> degrees

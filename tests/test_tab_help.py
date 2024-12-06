@@ -17,10 +17,10 @@ sort tap uniq unwrap unzip wrap xp zip
 
         self.verbs = '''
 Functions for arr: abs all angle any base bool caps chr cos cosd date
-dir divmod dow epoch exp factors floor format hex hms hr hypot int len
-log log10 lower make_date max mexp min minp mins mlog oct ord pi pow
-randomd reversed round secs sin sind sorted sqrt str sum tan tand tau
-time uktaxyear upper
+dir divmod dow epoch exp factors floor format gcd hex hms hr hypot int
+len log log10 lower make_date max mexp min minp mins mlog oct ord pi
+pow randomd reversed round secs sin sind sorted sqrt str sum tan tand
+tau time uktaxyear upper
         '''.strip()
 
     def test_help(self):

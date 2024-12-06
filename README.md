@@ -452,7 +452,7 @@ and deleting the contents of your file system.
 
 Only the following names of functions are allowed in a calculation.
 
-- maths functions: `abs cos cosd divmod exp floor hypot log log10 pow round sin sind sqrt tan tand`
+- maths functions: `abs cos cosd divmod exp floor gcd hypot log log10 pow round sin sind sqrt tan tand`
 - number conversion: `bool chr hex int oct ord str`
 - maths constants: `pi tau`
 - string functions: `caps lower upper reversed len` - see below

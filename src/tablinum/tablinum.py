@@ -73,6 +73,7 @@ Panther = {
     'angle': tab_fun_maths.angle,
     'cos': tab_fun_maths.cos, 'cosd': tab_fun_maths.cosd,
     'tan': tab_fun_maths.cos, 'tand': tab_fun_maths.tand,
+    'gcd': tab_fun_maths.gcd_for_decimals,
     'hex': tab_fun_maths.decimal_to_hex,
     'oct': tab_fun_maths.decimal_to_oct,
     'dir': tab_fun_maths.dir,

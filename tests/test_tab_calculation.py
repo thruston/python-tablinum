@@ -128,6 +128,46 @@ class TestTableCalculation(unittest.TestCase):
         self.tab.do("arr abc(20*?+4)")
         self.assertTrue(all(4 <= x[1] < 24 for x in self.tab.column(3)))
 
+        # test gcd function
+        self.maxDiff = 2000
+        self.tab.parse_lines('''
+775  784
+949  843
+299  702
+ 97  858
+945  482
+727  811
+869   45
+164  413
+387  452
+656  976
+'''.strip().splitlines())
+        self.assertEqual(str(self.tab), '''
+775  784
+949  843
+299  702
+ 97  858
+945  482
+727  811
+869   45
+164  413
+387  452
+656  976
+'''.strip())
+        self.tab.do("arr ab(gcd(a,b))")
+        self.assertEqual(str(self.tab), '''
+775  784   1
+949  843   1
+299  702  13
+ 97  858   1
+945  482   1
+727  811   1
+869   45   1
+164  413   1
+387  452   1
+656  976  16
+'''.strip())
+
     def test_normalize_and_tap(self):
         "Test table wide processing..."
         self.tab.parse_lines('''
