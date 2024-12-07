@@ -18,13 +18,41 @@ ZERO = decimal.Decimal('0')
 one = decimal.Decimal('1.0000000000')
 
 def gcd_for_decimals(*decimals):
-    '''convert to int and return gcd (as int..)
-    >>> gcd(34,3)
+    '''convert to int (dropping factional part) and return gcd (as int..)
+    >>> gcd_for_decimals(decimal.Decimal('34'), decimal.Decimal('3.14'))
     1
-    >>> gcd(299,702)
+    >>> gcd_for_decimals(decimal.Decimal('299'), decimal.Decimal('702'))
     13
     '''
     return math.gcd(*list(map(int,decimals)))
+
+
+def lcm_for_decimals(*decimals):
+    '''convert to int and return lcm (as int..)
+    >>> lcm_for_decimals(34,3)
+    102
+    >>> lcm_for_decimals(299,702)
+    16146
+    '''
+    return math.lcm(*list(map(int,decimals)))
+
+def comb_for_decimals(a, b):
+    '''convert to int and return math.comb -- as int
+    >>> comb_for_decimals(34,3)
+    5984
+    >>> comb_for_decimals(11,7)
+    330
+    '''
+    return math.comb(int(a), int(b))
+
+def perm_for_decimals(a, b):
+    '''convert to int and return math.perm -- as int
+    >>> perm_for_decimals(34,3)
+    35904
+    >>> perm_for_decimals(11,7)
+    1663200
+    '''
+    return math.perm(int(a), int(b))
 
 
 def degrees(x):
@@ -262,7 +290,7 @@ def factors(n):
     (2, 3, 13, 12821)
     >>> factors(1000039)
     (1000039,)
-    >>> factors(8761591) 
+    >>> factors(8761591)
     (2957, 2963)
     '''
     out = []

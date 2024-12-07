@@ -452,7 +452,8 @@ and deleting the contents of your file system.
 
 Only the following names of functions are allowed in a calculation.
 
-- maths functions: `abs cos cosd divmod exp floor gcd hypot log log10 pow round sin sind sqrt tan tand`
+- maths functions: `abs cos cosd divmod exp floor hypot log log10 pow round sin sind sqrt tan tand`
+- integer functions: `gcd lcm comb perm`  (inputs are truncated to integer values) 
 - number conversion: `bool chr hex int oct ord str`
 - maths constants: `pi tau`
 - string functions: `caps lower upper reversed len` - see below
@@ -463,6 +464,8 @@ The list functions are enhanced so you can call them with a tuple or a list of
 arguments.  If a function returns more than one value (like `divmod`) the
 values will be inserted in separate columns. The others are the regular BIF or
 `math` functions except for the trig functions for angles in degrees.
+In some cases the inputs are truncated to integer values, where the
+standard function expects integers.
 
 The expression should be a valid Python expression, but there are a couple of
 useful additions:  borrowing from Metapost, you can write `2a` instead of

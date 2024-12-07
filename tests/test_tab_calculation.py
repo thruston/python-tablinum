@@ -142,18 +142,6 @@ class TestTableCalculation(unittest.TestCase):
 387  452
 656  976
 '''.strip().splitlines())
-        self.assertEqual(str(self.tab), '''
-775  784
-949  843
-299  702
- 97  858
-945  482
-727  811
-869   45
-164  413
-387  452
-656  976
-'''.strip())
         self.tab.do("arr ab(gcd(a,b))")
         self.assertEqual(str(self.tab), '''
 775  784   1
@@ -167,6 +155,49 @@ class TestTableCalculation(unittest.TestCase):
 387  452   1
 656  976  16
 '''.strip())
+        self.tab.do("arr ab(lcm(a,b))")
+        self.assertEqual(str(self.tab), '''
+775  784  607600
+949  843  800007
+299  702   16146
+ 97  858   83226
+945  482  455490
+727  811  589597
+869   45   39105
+164  413   67732
+387  452  174924
+656  976   40016
+'''.strip())
+
+        # test comb and perm
+        self.tab.parse_lines('''
+24   4
+21   5
+20  29
+29   4
+'''.strip().splitlines())
+        self.tab.do("arr ab(perm(a,b)")
+        self.assertEqual(str(self.tab), '''
+24   4   255024
+21   5  2441880
+20  29        0
+29   4   570024
+'''.strip())
+
+        self.tab.parse_lines('''
+18  15
+19  16
+29  26
+ 7  27
+'''.strip().splitlines())
+        self.tab.do("arr ab(comb(a,b)")
+        self.assertEqual(str(self.tab), '''
+18  15   816
+19  16   969
+29  26  3654
+ 7  27     0
+'''.strip())
+
 
     def test_normalize_and_tap(self):
         "Test table wide processing..."
