@@ -510,10 +510,10 @@ available in a formula, some fancy f-strings might not work.  Also beware that
 tablinum treats all numbers as decimal.Decimal objects, and that therefore the Python
 `d` suffix does not work.   So if you have this table:
 
-Year  Month  Day  Saint
-2023      1    2  Basil the Great
-2023      7   15  Swithun
-2023     11   18  Elizabeth of Hungary
+    Year  Month  Day  Saint
+    2023      1    2  Basil the Great
+    2023      7   15  Swithun
+    2023     11   18  Elizabeth of Hungary
 
 and you want to make a proper date column with zero filled months and days, you
 might try this: `arr (f'{a}-{b:02d}-{c:02d}')d`  but that will cause an error.
@@ -521,10 +521,10 @@ The solution is to leave out the suffixes and rely on the defaults.
 
 So this: `arr (f'{a}-{b:02}-{c:02}')d` works correctly.
 
-Year-Month-Day  Saint
-2023-01-02      Basil the Great
-2023-07-15      Swithun
-2023-11-18      Elizabeth of Hungary
+    Year-Month-Day  Saint
+    2023-01-02      Basil the Great
+    2023-07-15      Swithun
+    2023-11-18      Elizabeth of Hungary
 
 There are also three functions for changing the case of a string column, so given:
 
