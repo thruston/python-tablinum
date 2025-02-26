@@ -1282,7 +1282,9 @@ and `sort c` produces this
     20 Feb 2014  Social Darwinism               p5912
     11 Feb 2016  Rumi's Poetry                  p7019
 
-The smarts also recognize IP addresses, MAC addresses, and SI unit suffixes.
+The smarts also recognize IP addresses, MAC addresses, and SI unit suffixes, 
+and generic suffixes like 17a, 17b, 17c etc...
+
 If the smarts get your sorting wrong, then you can turn them off by adding "="
 to the front of the sort column specifier.  So you can do `sort =b` on the
 table above to get this:

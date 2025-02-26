@@ -101,9 +101,9 @@ Panther = {
 
 # various number utils at this level
 
-
 def as_numeric_tuple(x, backwards=False):
     '''return something for sort to work with
+
     >>> as_numeric_tuple("a")
     (-1000000000000.0, 'A')
 
@@ -120,7 +120,7 @@ def as_numeric_tuple(x, backwards=False):
     (737546, '2020-05-01')
 
     >>> as_numeric_tuple("2 May 2020")
-    (737547, '2 MAY 2020')
+    (737547, '2 May 2020')
 
     >>> as_numeric_tuple("A19")
     (-1000000000000.0, 'A000000000000019')
@@ -160,6 +160,15 @@ def as_numeric_tuple(x, backwards=False):
     >>> as_numeric_tuple('00:01:E6:2C:42:1D')
     (8156627485, '00:01:E6:2C:42:1D')
 
+    >>> as_numeric_tuple('17a')
+    (17.25390625, '17A')
+
+    >>> as_numeric_tuple('17A')
+    (17.25390625, '17A')
+
+    >>> as_numeric_tuple('9f')
+    (9.2734375, '9F')
+
     '''
 
     alpha, omega = -1e12, 1e12
@@ -168,8 +177,6 @@ def as_numeric_tuple(x, backwards=False):
 
     if x is None or x == '':
         return (omega, '')  # put it at the bottom
-
-    x = x.upper()
 
     try:
         return (float(x), x)
@@ -201,17 +208,26 @@ def as_numeric_tuple(x, backwards=False):
             if len(x) == 17:
                 return (int(x.replace(':', ''), 16), x)
 
+    # now fold to upper case
+    x = x.upper()
+
     # pad trailing numbers with zeros
     # Make A1, A2, A10 etc sortable...
     if (m := re.match(r'(\D+)(\d+["\']?)\Z', x)) is not None:
         return (alpha, m.group(1) + m.group(2).zfill(15))
 
+    # allow trailing suffixes a b c etc, 17a, 17b ... upto j (not 50k)
+    if (m := re.match(r'(\d+)([A-J])\Z', x)) is not None:
+        n, suffix = m.groups()
+        return (int(n) + (ord(suffix) % 256) / 256, x)
+
+    # allow SI suffixes
     si_values = {
-        'B': 1, 'K': 1000, 'M': 1000000, 'G': 1000000000, 'T': 1000000000000,
+        'K': 1000, 'M': 1000000, 'G': 1000000000, 'T': 1000000000000,
         'KB': 1024, 'MB': 1048576, 'GB': 1073741824, 'TB': 1099511627776,
         'KIB': 1024, 'MIB': 1048576, 'GIB': 1073741824, 'TIB': 1099511627776,
     }
-    if (m := re.match(r'(\d+\.\d*|\.?\d+)\s?([BKMGT](I?B)?)', x)) is not None:
+    if (m := re.match(r'(\d+\.\d*|\.?\d+)\s?([KMGT](I?B)?)\Z', x)) is not None:
         return (float(m.group(1)) * si_values.get(m.group(2), 1), x)
 
     # remove leading articles (Library sort)
@@ -273,7 +289,7 @@ def is_as_number(sss):
 
     trial_number = ''.join(c for c in sss.lower() if c in digits + point + signs + alphabetics + suffix)
 
-    # with the base=0 argument int() will throw a ValueError unless "trial_number" 
+    # with the base=0 argument int() will throw a ValueError unless "trial_number"
     # looks like a base10 integer
     try:
         return (True, decimal.Decimal(int(trial_number, 0)))

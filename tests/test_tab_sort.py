@@ -33,6 +33,8 @@ Saturday   0.62  0.02
 Sunday     0.34  0.25
 '''.strip()
 
+
+
         self.addresses = '''
 Mac                IP
 00:01:E6:2C:42:1D  192.168.0.12
@@ -238,3 +240,27 @@ Wednesday  0.91  0.17
         self.assertEqual(str(self.tab), self.addresses_by_A)
         self.tab.do('sort b')
         self.assertEqual(str(self.tab), self.addresses_by_B)
+    
+    def test_list_sorts(self):
+        "Sort lists with suffixes"
+        pathlist = '''
+227    1  10  Bridleway         SU60148218
+227    2  10  Footpath          SU59918117
+227    3  10  Footpath          SU59978069
+227   3a  10  Restricted Byway  SU59618053
+227    4  10  Footpath          SU59658035
+227    4  20  Footpath          SU59838039
+227    5  10  Footpath          SU59898002
+227    6  10  Footpath          SU60088009
+227    6  20  Footpath          SU60477992
+227  17a  10  Bridleway         SU62337994
+227  17a  20  Bridleway         SU61887999
+227  17b  10  Bridleway         SU61617987
+'''.strip()     
+        self.tab.parse_lines(pathlist.splitlines())
+        self.tab.do('shuffle sort bc')
+        self.assertEqual(str(self.tab), pathlist)
+
+
+            
+
