@@ -272,7 +272,7 @@ def is_as_number(sss):
     (True, Decimal('14.75'))
     '''
     digits = '1234567890'
-    ignore = '£$,_'
+    ignore = '£$,_p'
     signs = '+-'
     point = '.'
     alphabetics = 'xoabcdef'

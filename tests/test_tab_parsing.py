@@ -190,6 +190,42 @@ And again
 Total       113  216
 '''.strip())
 
+    def test_what_looks_like_number(self):
+        self.tab.parse_lines('''
+First example   True  42  3.1415  1,234  0.123_245   32%  0b1111  0xdead     4E3  £4.50  3,456.00p
+Another one    False  39  2.7185  4,537  0.892_244   67%    0o63  0xBEEF   21E-3  £3,000  245.75p
+'''.strip().splitlines())
+
+        self.tab.do("rule add")
+        self.maxDiff=4000
+        self.assertEqual(str(self.tab), '''
+First example   True  42  3.1415  1,234  0.123_245   32%  0b1111  0xdead       4E3    £4.50  3,456.00p
+Another one    False  39  2.7185  4,537  0.892_244   67%    0o63  0xBEEF     21E-3   £3,000    245.75p
+------------------------------------------------------------------------------------------------------
+Total              1  81  5.8600   5771   1.015489  0.99      66  105884  4000.021  3004.50    3701.75
+'''.strip())
+
+# Notice that the results are always given as decimals, but you can use `tap` or `arr` to
+# set a common format.  You can reset them all to "normal" decimals with `tap +0`:
+        self.tab.do("tap +0")
+        self.assertEqual(str(self.tab), '''
+First example  1  42  3.1415  1234  0.123245  0.32  15   57005      4000     4.50  3456.00
+Another one    0  39  2.7185  4537  0.892244  0.67  51   48879     0.021     3000   245.75
+------------------------------------------------------------------------------------------
+Total          1  81  5.8600  5771  1.015489  0.99  66  105884  4000.021  3004.50  3701.75
+'''.strip())
+
+# while `tap f'{x:,}'` gives you:
+        self.tab.do("tap f'{x:,}'")
+        self.assertEqual(str(self.tab), '''
+First example  1  42  3.1415  1,234  0.123245  0.32  15   57,005      4,000      4.50  3,456.00
+Another one    0  39  2.7185  4,537  0.892244  0.67  51   48,879      0.021     3,000    245.75
+-----------------------------------------------------------------------------------------------
+Total          1  81  5.8600  5,771  1.015489  0.99  66  105,884  4,000.021  3,004.50  3,701.75
+'''.strip())
+
+
+
     def test_nothing(self):
         self.nulltab = tablinum.Table()
         self.nulltab.parse_lines("")
