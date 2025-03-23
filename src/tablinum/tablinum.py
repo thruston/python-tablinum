@@ -683,6 +683,7 @@ class Table:
             'filter': self._select_matching_rows,
             'gen': self._generate_new_rows,
             'group': self._add_grouping_blanks,
+            'head': self._heads,
             'help': self._describe_operations,
             'make': self._set_output_form,
             'label': self._label_columns,
@@ -698,6 +699,7 @@ class Table:
             'sf': self._fix_sigfigs,
             'shuffle': self._shuffle_rows,
             'sort': self._sort_rows_by_col,
+            'tail': self._tails,
             'uniq': self._remove_duplicates_by_col,
             'unwrap': self._unrapper,
             'unzip': self._unzipper,
@@ -742,6 +744,46 @@ class Table:
         self.stack.append(self.pop(n))  # pop puts it on the stack first, so this does it twice
         self.push(n)
         self.push(n)
+
+    def _heads(self, n):
+        "Truncate to top n rows"
+        # default / correct to 10
+        try:
+            lines = int(n)
+        except ValueError:
+            lines = 10
+
+        # usual semantics for negative index
+        if lines < 0:
+            lines = len(self.data) + lines
+
+        # remove extras after head
+        for i in range(lines + 1, len(self.data)):
+            if i in self.extras:
+                self.extras.pop(i)
+
+        # truncate data
+        self.data = self.data[:lines]
+
+    def _tails(self, n):
+        "Truncate to last n rows"
+        # default to 10
+        try:
+            lines = int(n)
+        except ValueError:
+            lines = 10
+
+        # usual semantics for negative index
+        if lines < 0:
+            lines = len(self.data) + lines
+
+        # remove extras before tail
+        for i in range(len(self.data) - lines):
+            if i in self.extras:
+                self.extras.pop(i)
+
+        # truncate data
+        self.data = self.data[-lines:]
 
     def parse_tex(self, lines_thing, append=False):
         "Read lines from an iterable thing of TeX source, and append to self"

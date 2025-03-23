@@ -10,9 +10,9 @@ class TestTableHelp(unittest.TestCase):
     def setUp(self):
         self.tab = tablinum.Table()
         self.help = '''
-Try one of these: add arr clear ditto dp dup filter gen group help
-label levels make noblanks nospace pivot pop push roll rule sf shuffle
-sort tap uniq unwrap unzip wrap xp zip
+Try one of these: add arr clear ditto dp dup filter gen group head
+help label levels make noblanks nospace pivot pop push roll rule sf
+shuffle sort tail tap uniq unwrap unzip wrap xp zip
         '''.strip()
 
         # textwrap wraps at 70 by default

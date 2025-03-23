@@ -299,6 +299,8 @@ Then they are all described in more detail below, in alphabetical order.
 - [gen](#gen---generate-new-rows) - generate new rows
 - [pop](#pop---remove-a-row) - remove a row, by default the last
 - [push](#push---restore-a-row) - put back the last row popped
+- [head](#head---truncate-to-top-n-rows) - truncate the table to the top
+- [tail](#tail---truncate-to-bottom-n-rows) - truncate the table to the bottom
 - [clear](#clear---clear-all-rows) - remove all the rows
 
 **Decorate or adjust the whole table**
@@ -648,6 +650,21 @@ while `hr`, `mins`, and `secs` go the other way.
 
 Plus `epoch()` that will convert a full date-time timestamp to epoch seconds.
 
+### head - truncate to top n rows
+
+This verb behaves a bit like `head` on the command line.  If you have a long table
+`head 5` will give you just the first 5 rows; `head 20` will give you the first 20, and so on.
+The default number of rows is 10, the same as `head` on the command line.  
+If the number is larger than the number of rows, then nothing is changed.
+`head 0` is the same as `clear`. 
+
+If you want to select a random sample of 10 rows, try `shuffle head sort`.
+
+### tail - truncate to bottom n rows
+
+Matches `head` but at the other end.  `tail 5` gives you the last 5 rows, and
+so on.  The number of rows defaults to 10.  If you want to keep the first row
+as a header, then do `pop 0 tail push 0`
 
 ### clear - remove all rows
 
