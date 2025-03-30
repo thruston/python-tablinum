@@ -301,6 +301,8 @@ def make_date(year=datetime.date.today().year, month=1, day=1, format=None):
     '2024-01-01'
     >>> make_date(2023, 13, 43)
     '2024-02-12'
+    >>> make_date(2001, format='%a')
+    'Mon'
 
     '''
 
