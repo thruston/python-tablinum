@@ -1016,6 +1016,11 @@ class Table:
                     flag, value_dict[k] = is_as_number(v)
                     if flag:
                         value_dict[k.upper()] += value_dict[k]
+            
+                # allow counting from the end in filters....
+                for j, k in zip("zyxw", reversed(identity)):
+                    value_dict[j] = value_dict[k]
+                    value_dict[j.upper()] = value_dict[k.upper()]
 
                 try:
                     wanted = eval(cc, Panther, value_dict)
