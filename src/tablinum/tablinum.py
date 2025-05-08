@@ -2,7 +2,7 @@
 '''Tablinum
 
 A module to line up text tables.
-Toby Thurston -- 30 May 2024
+Toby Thurston -- May 2025
 '''
 
 import argparse
@@ -241,7 +241,7 @@ def as_numeric_tuple(x, backwards=False):
 def is_as_number(sss):
     '''Input (string) Output (boolean, any)
     if boolean is True, any is Decimal
-    else any is string
+                   else any is string
     >>> is_as_number('')
     (False, '')
     >>> is_as_number("Label")
@@ -1502,6 +1502,13 @@ class Table:
 
         # empty perm is a no-op
         if not perm:
+            return
+
+        # empty data is also a no-op unless perm is generating randoms with all '?'s
+        if not self.data and set(perm) == set('?'):
+            self.data.append([0])
+
+        if not self.data:
             return
 
         # include the stack rows in the data

@@ -19,6 +19,15 @@ class TestTableCalculation(unittest.TestCase):
 23.0  1428  50.5
 '''.strip()
 
+    # empty tables are a no-op, except when the user has put `Tb arr ????` to get 
+    # a row of random data, instead of remembering to put `Tb gen 1 arr ????`
+    def test_empty_table(self):
+        self.assertEqual(str(self.tab), "")
+        self.tab.do("arr abc")
+        self.assertEqual(str(self.tab), "")
+        self.tab.do("arr ???")
+        self.assertEqual(self.tab.cols, 3)
+
     def test_functions(self):
         self.tab.parse_lines(self.simple.splitlines())
         self.tab.do("arr abc(sqrt(b))(sqrt(a))")

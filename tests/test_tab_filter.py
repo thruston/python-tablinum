@@ -41,7 +41,7 @@ Monday      Week  Mon  Tue   Wed  Thu  Fri   Sat   Sun  Total
         self.tab.do('filter b=>4')  # Syntax error make message
         self.assertEqual(str(self.tab), '?! syntax b=>4\n' + self.rain)
 
-        self.tab.do('filter z > 10.0')
+        self.tab.do('filter z > 10.0')  # Allow counting from the end
         expected = '''
 Monday      Week  Mon  Tue   Wed  Thu  Fri   Sat   Sun  Total
 -------------------------------------------------------------
