@@ -1197,6 +1197,10 @@ produces (for example):
 You can also give a colspec, as for sort.  So `shuffle b` will randomize only the second column.
 If you want to leave the top row alone, do `pop 0 shuffle push 0` or just `shuffle @`.
 
+Here's another example; this one will pick your UK Lottery numbers:
+
+    gen 59 shuffle head 6 sort xp
+
 ### sf - round numbers to given significant figures
 
     sf [sf-list]

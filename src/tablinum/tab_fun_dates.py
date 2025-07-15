@@ -37,7 +37,7 @@ def parse_date(sss, today=None):
     >>> parse_date("2022-W47-2")
     datetime.date(2022, 11, 22)
 
-    >>> parse_date("Fri 1st Apr 2022")
+    >>> parse_date("1st Apr 2022")
     datetime.date(2022, 4, 1)
 
     >>> parse_date("Sat 29th July 2023")
@@ -80,6 +80,8 @@ def parse_date(sss, today=None):
     for fmt in ('%Y-%m-%d', '%Y%m%d', '%d %B %Y', '%d %b %Y', '%G-W%V-%u', '%d-%b-%Y',
                 '%d %b %y', '%d %B %y', '%d/%m/%Y', '%d/%m/%y', '%B %d, %Y',
                 '%A %d %B %Y',
+                '%dth %b %Y', '%dst %b %Y', '%dnd %b %Y', '%drd %b %Y',
+                '%dth %B %Y', '%dst %B %Y', '%dnd %B %Y', '%drd %B %Y',
                 '%a %dth %b %Y', '%a %dst %b %Y', '%a %dnd %b %Y', '%a %drd %b %Y',
                 '%a %dth %B %Y', '%a %dst %B %Y', '%a %dnd %B %Y', '%a %drd %B %Y',
                 '%m/%d/%Y',
