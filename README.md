@@ -1085,6 +1085,29 @@ you could do `pop 0 label pivot wide pivot long push 1 pop 0`
     West    Q3        1990
     West    Q4        2439
 
+All of the above options assume that "value" column contains something that can be treated
+as a number.  If your values are alphabetic like this:
+
+    Region  Quarter  Sales Leader
+    -----------------------------
+    East    Q1       Guest
+    East    Q2       George
+    East    Q3       Slater
+    East    Q4       Watts
+    West    Q1       Millard
+    West    Q2       Woodhouse
+    West    Q3       Sharman
+    West    Q4       Preece
+
+you can use `pivot alpha`:
+
+    Region  Q1       Q2         Q3       Q4
+    -------------------------------------------
+    East    Guest    George     Slater   Watts
+    West    Millard  Woodhouse  Sharman  Preece
+
+
+
 ### pop - remove a row
 
     pop [i]
