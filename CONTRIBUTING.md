@@ -20,7 +20,7 @@ write a new test for the new function, and make sure it fails.
 now write the function, being aware that your function has to cope 
 with Decimal numbers (or cast them to int... etc)
 
-You will need to update the `Panther` cat of functions in tablinum.py
+You may need to update the `Panther` cat of functions in tablinum.py
 
 Re-run tests until it works ok
 

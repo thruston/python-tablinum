@@ -5,6 +5,7 @@ A module to line up text tables.
 Toby Thurston -- May 2025
 '''
 
+import ast
 import argparse
 import builtins
 import collections
@@ -169,6 +170,9 @@ def as_numeric_tuple(x, backwards=False):
     >>> as_numeric_tuple('9f')
     (9.2734375, '9F')
 
+    >>> as_numeric_tuple('(3,4)')
+    ((3, 4), '(3,4)')
+
     '''
 
     alpha, omega = -1e12, 1e12
@@ -234,6 +238,14 @@ def as_numeric_tuple(x, backwards=False):
     words = x.split()
     if len(words) > 1 and words.pop(0) in ('A', 'AN', 'THE'):
         return (alpha, ' '.join(words))
+
+    # catch tuples, and anything else that will evaluate to a Python value
+    try:
+        v = ast.literal_eval(x)
+    except (SyntaxError, TypeError, ValueError, MemoryError, RecursionError):
+        return (alpha, x)
+    else:
+        return (v, x)
 
     return (alpha, x)
 

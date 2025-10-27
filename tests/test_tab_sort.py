@@ -35,35 +35,6 @@ Sunday     0.34  0.25
 
 
 
-        self.addresses = '''
-Mac                IP
-00:01:E6:2C:42:1D  192.168.0.12
-3C:07:54:3D:3F:82  192.168.0.13
-60:C5:47:21:D7:E9  192.168.0.16
-2C:4D:54:74:A4:D8  192.168.0.4
-50:C7:BF:1C:88:66  192.168.0.3
-74:D0:2B:5D:CD:C0  192.168.0.2
-'''.strip()
-
-        self.addresses_by_A = '''
-Mac                IP
-00:01:E6:2C:42:1D  192.168.0.12
-2C:4D:54:74:A4:D8  192.168.0.4
-3C:07:54:3D:3F:82  192.168.0.13
-50:C7:BF:1C:88:66  192.168.0.3
-60:C5:47:21:D7:E9  192.168.0.16
-74:D0:2B:5D:CD:C0  192.168.0.2
-'''.strip()
-
-        self.addresses_by_B = '''
-Mac                IP
-74:D0:2B:5D:CD:C0  192.168.0.2
-50:C7:BF:1C:88:66  192.168.0.3
-2C:4D:54:74:A4:D8  192.168.0.4
-00:01:E6:2C:42:1D  192.168.0.12
-3C:07:54:3D:3F:82  192.168.0.13
-60:C5:47:21:D7:E9  192.168.0.16
-'''.strip()
 
     def test_filter(self):
         "Select matching rows"
@@ -235,11 +206,89 @@ Wednesday  0.91  0.17
 
     def test_special_sorts(self):
         "Smart sorting"
+
+        self.addresses = '''
+Mac                IP
+00:01:E6:2C:42:1D  192.168.0.12
+3C:07:54:3D:3F:82  192.168.0.13
+60:C5:47:21:D7:E9  192.168.0.16
+2C:4D:54:74:A4:D8  192.168.0.4
+50:C7:BF:1C:88:66  192.168.0.3
+74:D0:2B:5D:CD:C0  192.168.0.2
+'''.strip()
+
+        self.addresses_by_A = '''
+Mac                IP
+00:01:E6:2C:42:1D  192.168.0.12
+2C:4D:54:74:A4:D8  192.168.0.4
+3C:07:54:3D:3F:82  192.168.0.13
+50:C7:BF:1C:88:66  192.168.0.3
+60:C5:47:21:D7:E9  192.168.0.16
+74:D0:2B:5D:CD:C0  192.168.0.2
+'''.strip()
+
+        self.addresses_by_B = '''
+Mac                IP
+74:D0:2B:5D:CD:C0  192.168.0.2
+50:C7:BF:1C:88:66  192.168.0.3
+2C:4D:54:74:A4:D8  192.168.0.4
+00:01:E6:2C:42:1D  192.168.0.12
+3C:07:54:3D:3F:82  192.168.0.13
+60:C5:47:21:D7:E9  192.168.0.16
+'''.strip()
+
+        self.tuples_alphabetical = '''
+"Apricot"         (1, 0.68)      (23.08, 0.52, 1)
+"CornflowerBlue"  (0.31, 11)     (192.0, 0.65, 1)
+"Magenta"         (1, 0)         (300.0, 1.0, 1)
+"Mulberry"        (0.64, 0.98)   (277.33, 0.92, 0.98)
+"Orchid"          (0.68, 0.36)   (270.0, 0.64, 1)
+"Plum"            (0.5, 0.1)     (270.0, 1.0, 1)
+"RubineRed"       (1.0, 0.87)    (307.8, 1.0, 1)
+"SeaGreen"        (0.31, 9.5)    (136.52, 0.69, 1)
+"SpringGreen"     (17.4, 10.24)  (80.53, 0.76, 1)
+"White"           (1, 1)         (0, 0.0, 1)
+'''.strip()
+        
+        self.tuples_by_pair = '''
+"SeaGreen"        (0.31, 9.5)    (136.52, 0.69, 1)
+"CornflowerBlue"  (0.31, 11)     (192.0, 0.65, 1)
+"Plum"            (0.5, 0.1)     (270.0, 1.0, 1)
+"Mulberry"        (0.64, 0.98)   (277.33, 0.92, 0.98)
+"Orchid"          (0.68, 0.36)   (270.0, 0.64, 1)
+"Magenta"         (1, 0)         (300.0, 1.0, 1)
+"Apricot"         (1, 0.68)      (23.08, 0.52, 1)
+"RubineRed"       (1.0, 0.87)    (307.8, 1.0, 1)
+"White"           (1, 1)         (0, 0.0, 1)
+"SpringGreen"     (17.4, 10.24)  (80.53, 0.76, 1)
+'''.strip()
+        
+        self.tuples_by_triple = '''
+"White"           (1, 1)         (0, 0.0, 1)
+"Apricot"         (1, 0.68)      (23.08, 0.52, 1)
+"SpringGreen"     (17.4, 10.24)  (80.53, 0.76, 1)
+"SeaGreen"        (0.31, 9.5)    (136.52, 0.69, 1)
+"CornflowerBlue"  (0.31, 11)     (192.0, 0.65, 1)
+"Orchid"          (0.68, 0.36)   (270.0, 0.64, 1)
+"Plum"            (0.5, 0.1)     (270.0, 1.0, 1)
+"Mulberry"        (0.64, 0.98)   (277.33, 0.92, 0.98)
+"Magenta"         (1, 0)         (300.0, 1.0, 1)
+"RubineRed"       (1.0, 0.87)    (307.8, 1.0, 1)
+'''.strip()
+        
         self.tab.parse_lines(self.addresses.splitlines())
         self.tab.do('sort')
         self.assertEqual(str(self.tab), self.addresses_by_A)
         self.tab.do('sort b')
         self.assertEqual(str(self.tab), self.addresses_by_B)
+
+        self.tab.parse_lines(self.tuples_alphabetical.splitlines())
+        self.tab.do('sort')
+        self.assertEqual(str(self.tab), self.tuples_alphabetical)
+        self.tab.do('sort b')
+        self.assertEqual(str(self.tab), self.tuples_by_pair)
+        self.tab.do('sort c')
+        self.assertEqual(str(self.tab), self.tuples_by_triple)
     
     def test_list_sorts(self):
         "Sort lists with suffixes"
