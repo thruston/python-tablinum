@@ -173,6 +173,15 @@ def as_numeric_tuple(x, backwards=False):
     >>> as_numeric_tuple('(3,4)')
     ((3, 4), '(3,4)')
 
+    >>> as_numeric_tuple('25.60.10.1.')
+    ((25, 60, 10, 1), '25.60.10.1.')
+
+    >>> as_numeric_tuple('25.49.4.')
+    ((25, 49, 4), '25.49.4.')
+    
+    >>> as_numeric_tuple('25.60.10.1.2')
+    ((25, 60, 10, 1, 2), '25.60.10.1.2')
+
     '''
 
     alpha, omega = -1e12, 1e12
@@ -211,6 +220,10 @@ def as_numeric_tuple(x, backwards=False):
         if x.count(':') == 5:
             if len(x) == 17:
                 return (int(x.replace(':', ''), 16), x)
+
+    # perhaps it's a multi-level item number?
+    if all(t in '0123456789.' for t in x):
+        return (tuple(int(n) for n in x.strip('.').split('.')), x)
 
     # now fold to upper case
     x = x.upper()
