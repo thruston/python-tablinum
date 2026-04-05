@@ -38,6 +38,10 @@ Then do
     hatch build
     hatch publish
 
+the publish step may need the user and pw reset -- but don't do that!
+instead add `--user __token__ --auth -pypi-SQGSRHSRHHS....` with a new
+token generated on your PyPI account.
+
 And finally you can install the updated module locally with 
 
     pipx upgrade tablinum
