@@ -4,6 +4,13 @@ First check everything works with
 
     hatch run test-cov --doctest-modules
 
+[If you get an error, saying file not found, then you probably need to recreate
+the default env for the project:
+
+    hatch env prune
+
+should do the trick - Toby Thurston -- 10 Sep 2026]
+
 Check current version level with
 
     hatch version 

@@ -11,7 +11,7 @@ and so save you hours of time faffing about with format and alignment.  As a scr
 it provides a filter with a simple DSL (domain-specific language) that can be used
 to make and manipulate tables in editors that support external filters (such as Vim).'''
 readme = "README.md"
-requires-python = ">=3.8"
+requires-python = ">=3.10"
 license = "MIT"
 keywords = []
 authors = [
@@ -20,21 +20,20 @@ authors = [
 classifiers = [
   "Development Status :: 4 - Beta",
   "Programming Language :: Python",
-  "Programming Language :: Python :: 3.8",
-  "Programming Language :: Python :: 3.9",
   "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
   "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
   "Programming Language :: Python :: Implementation :: CPython",
   "Programming Language :: Python :: Implementation :: PyPy",
 ]
 dependencies = []
 
 [project.urls]
-Documentation = "https://github.com/unknown/tablinum#readme"
-Issues = "https://github.com/unknown/tablinum/issues"
-Source = "https://github.com/unknown/tablinum"
+Documentation = "https://github.com/thruston/python-tablinum/blob/main/README.md"
+Issues = "https://github.com/thruston/python-tablinum/issues"
+Source = "https://github.com/thruston/python-tablinum"
 
 [project.scripts]
 tablinum_filter = "tablinum.tablinum:filter"
@@ -60,7 +59,7 @@ cov = [
 ]
 
 [[tool.hatch.envs.all.matrix]]
-python = ["3.8", "3.9", "3.10", "3.11", "3.12", "3.13"]
+python = ["3.10", "3.11", "3.12", "3.13", "3.14"]
 
 [tool.hatch.envs.types]
 dependencies = [

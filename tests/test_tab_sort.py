@@ -310,6 +310,17 @@ Mac                IP
         self.tab.do('shuffle sort bc')
         self.assertEqual(str(self.tab), pathlist)
 
+    def test_mixed_types(self):
+        "Sort mixed data types in columns"
+
+        mixture = '''
+159  Waste / Litter / Street Cleaning  TSB Current Account
+110  Traffic calming EMR               26.17.16
+175  General Maintenance & Repair      25.61.15.2
+'''.strip()
+        self.tab.parse_lines(mixture.splitlines())
+        self.tab.do('shuffle sort c')
+        self.assertEqual(str(self.tab), mixture)
 
             
 

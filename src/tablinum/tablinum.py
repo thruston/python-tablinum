@@ -103,7 +103,10 @@ Panther = {
 # various number utils at this level
 
 def as_numeric_tuple(x, backwards=False):
-    '''return something for sort to work with
+    '''return something for sort to work with.
+    The first value should be int or float, the whole thing
+    returned should be a tuple of two or more values.  
+    The last item in the tuple should be the string value of x.
 
     >>> as_numeric_tuple("a")
     (-1000000000000.0, 'A')
@@ -171,16 +174,16 @@ def as_numeric_tuple(x, backwards=False):
     (9.2734375, '9F')
 
     >>> as_numeric_tuple('(3,4)')
-    ((3, 4), '(3,4)')
+    (3, 4, '(3,4)')
 
     >>> as_numeric_tuple('25.60.10.1.')
-    ((25, 60, 10, 1), '25.60.10.1.')
+    (25, 60, 10, 1, '25.60.10.1.')
 
     >>> as_numeric_tuple('25.49.4.')
-    ((25, 49, 4), '25.49.4.')
+    (25, 49, 4, '25.49.4.')
     
     >>> as_numeric_tuple('25.60.10.1.2')
-    ((25, 60, 10, 1, 2), '25.60.10.1.2')
+    (25, 60, 10, 1, 2, '25.60.10.1.2')
 
     '''
 
@@ -223,7 +226,7 @@ def as_numeric_tuple(x, backwards=False):
 
     # perhaps it's a multi-level item number?
     if all(t in '0123456789.' for t in x):
-        return (tuple(int(n) for n in x.strip('.').split('.')), x)
+        return tuple(int(n) for n in x.strip('.').split('.')) + (x,)
 
     # now fold to upper case
     x = x.upper()
@@ -258,6 +261,8 @@ def as_numeric_tuple(x, backwards=False):
     except (SyntaxError, TypeError, ValueError, MemoryError, RecursionError):
         return (alpha, x)
     else:
+        if type(v) is tuple:
+            return v + (x,)
         return (v, x)
 
     return (alpha, x)
