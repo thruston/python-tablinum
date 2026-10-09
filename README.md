@@ -455,7 +455,7 @@ and deleting the contents of your file system.
 Only the following names of functions are allowed in a calculation.
 
 - maths functions: `abs cos cosd divmod exp floor hypot log log10 pow round sin sind sqrt tan tand`
-- integer functions: `gcd lcm comb perm`  (inputs are truncated to integer values) 
+- integer functions: `gcd lcm comb perm`  (inputs are truncated to integer values)
 - number conversion: `bool chr hex int oct ord str`
 - maths constants: `pi tau`
 - string functions: `caps lower upper reversed len` - see below
@@ -637,7 +637,7 @@ second argument that can be any strftime code.  So given the table from above
     2011-03-19
     2011-07-05
 
-then `arr a{date(a, "%G-W%V-%u")}` will produce this:
+then `arr a{date(base(a), "%G-W%V-%u")}` will produce this:
 
     2011-01-17  2011-W03-1
     2011-02-23  2011-W08-3
@@ -654,9 +654,9 @@ Plus `epoch()` that will convert a full date-time timestamp to epoch seconds.
 
 This verb behaves a bit like `head` on the command line.  If you have a long table
 `head 5` will give you just the first 5 rows; `head 20` will give you the first 20, and so on.
-The default number of rows is 10, the same as `head` on the command line.  
+The default number of rows is 10, the same as `head` on the command line.
 If the number is larger than the number of rows, then nothing is changed.
-`head 0` is the same as `clear`. 
+`head 0` is the same as `clear`.
 
 If you want to select a random sample of 10 rows, try `shuffle head sort`.
 
