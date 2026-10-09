@@ -102,10 +102,11 @@ Panther = {
 
 # various number utils at this level
 
+
 def as_numeric_tuple(x, backwards=False):
     '''return something for sort to work with.
     The first value should be int or float, the whole thing
-    returned should be a tuple of two or more values.  
+    returned should be a tuple of two or more values.
     The last item in the tuple should be the string value of x.
 
     >>> as_numeric_tuple("a")
@@ -181,7 +182,7 @@ def as_numeric_tuple(x, backwards=False):
 
     >>> as_numeric_tuple('25.49.4.')
     (25, 49, 4, '25.49.4.')
-    
+
     >>> as_numeric_tuple('25.60.10.1.2')
     (25, 60, 10, 1, 2, '25.60.10.1.2')
 
@@ -515,14 +516,22 @@ def compile_as_decimal(expr):
     one of the verbs like arr or filter or sort or tap, and compiles
     it so that we can execute it more efficiently.
 
-    Several bits of syntactic sugar are applied to the expression, after tokenization
+    Apply one bit of syntactic suger before tokenization
 
     - allow <> for != (easier to write on the Vi command line
+
+    And several bits of syntactic sugar are applied to the expression, after tokenization
+
     - allow mod for % (ditto)
     - allow = for == in comparisons (checkout the negative look behind in the regex)
     - make all tokens that look like floats (NUMBER and contains '.') into
       Decimals, so that we avoid the normal FP accuracy & rounding issues.
     - translate '?' into a (decimal) random number.
+
+    In general it is simpler and safer to make the changes after Python has
+    tokenized the input expression but since 3.14.8 Python tokenizes '<>' as two separate
+    operators, so we have to do a simple replace and hope that we don't break
+    anything
 
     Then a couple more "corrections" to the out list:
 
@@ -532,6 +541,8 @@ def compile_as_decimal(expr):
     Finally we untokenize the expression and compile it with the compile BIF.
 
     '''
+
+    expr = expr.replace("<>", "!=")
 
     out = []
     try:
@@ -545,9 +556,7 @@ def compile_as_decimal(expr):
                 out.append((tokenize.OP, '%'))
             elif tn == tokenize.OP and tv == '=':
                 out.append((tokenize.OP, '=='))
-            elif tn == tokenize.OP and tv == '<>':
-                out.append((tokenize.OP, '!='))
-            elif tv == '?':
+            elif tn == tokenize.OP and tv == '?':
                 out.append((tokenize.NAME, 'randomd'))
                 out.append((tokenize.OP, '('))
                 out.append((tokenize.OP, ')'))
@@ -1046,7 +1055,7 @@ class Table:
                     flag, value_dict[k] = is_as_number(v)
                     if flag:
                         value_dict[k.upper()] += value_dict[k]
-            
+
                 # allow counting from the end in filters....
                 for j, k in zip("zyxw", reversed(identity)):
                     value_dict[j] = value_dict[k]
